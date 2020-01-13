@@ -8,6 +8,8 @@ all: docker-wine-amd64 docker-wine-i386
 
 $(STEAMRT_SDKBASE)-%:
 	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -O $@
+steam-runtime.tar.xz:
+	wget $(STEAMRT_URLBASE)/steam-runtime.tar.xz -O $@
 
 docker-steamrt-amd64: $(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.Dockerfile $(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz
 	rm -rf build; mkdir -p build
@@ -50,6 +52,15 @@ docker-proton-i386: proton.Dockerfile docker-steamrt-i386
 	docker push rbernon/proton-i386:$(STEAMRT_VERSION)
 	docker push rbernon/proton-i386:latest
 .PHONY: docker-proton-i386
+
+docker-proton-build: proton-build.Dockerfile steam-runtime.tar.xz
+	rm -rf build; mkdir -p build
+	cp steam-runtime.tar.xz build
+	docker build -f $< -t rbernon/proton-build:$(STEAMRT_VERSION) build
+	docker tag rbernon/proton-build:$(STEAMRT_VERSION) rbernon/proton-build:latest
+	docker push rbernon/proton-build:$(STEAMRT_VERSION)
+	docker push rbernon/proton-build:latest
+.PHONY: docker-proton-build
 
 docker-wine-amd64: wine.Dockerfile
 	rm -rf build; mkdir -p build
