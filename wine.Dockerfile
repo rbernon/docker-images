@@ -3,6 +3,7 @@ FROM $BASE_IMAGE:sid
 RUN apt-get update && apt-get install -y \
   autoconf \
   bison \
+  ccache \
   flex \
   gcc \
   gettext \
