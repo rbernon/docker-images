@@ -2,9 +2,12 @@ STEAMRT_VERSION = $(shell cat $(HOME)/.steam/root/ubuntu12_32/steam-runtime/vers
 STEAMRT_URLBASE = http://repo.steampowered.com/steamrt-images-scout/snapshots/$(STEAMRT_VERSION)
 STEAMRT_SDKBASE = com.valvesoftware.SteamRuntime.Sdk
 
-all: docker-steamrt-amd64 docker-steamrt-i386
-all: docker-proton-amd64 docker-proton-i386
-all: docker-wine-amd64 docker-wine-i386
+all steamrt: docker-steamrt-amd64 docker-steamrt-i386
+all proton: docker-proton-amd64 docker-proton-i386
+all wine: docker-wine-amd64 docker-wine-i386
+
+version:
+	@echo $(STEAMRT_VERSION)
 
 $(STEAMRT_SDKBASE)-%:
 	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -O $@
