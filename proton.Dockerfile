@@ -1,5 +1,5 @@
 ARG BASE_IMAGE
-FROM $BASE_IMAGE:latest
+FROM $BASE_IMAGE
 ARG ARCH
 RUN wget -qO- https://more.musl.cc/$ARCH-linux-musl/$ARCH-w64-mingw32-cross.tgz | \
       tar xzf - --strip-components 2 -C /usr; \

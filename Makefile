@@ -36,7 +36,7 @@ docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
 	rm -rf build; mkdir -p build
 	docker build -f $< \
 	  --build-arg=ARCH=x86_64 \
-	  --build-arg=BASE_IMAGE=rbernon/steamrt-amd64 \
+	  --build-arg=BASE_IMAGE=rbernon/steamrt-amd64:$(STEAMRT_VERSION) \
 	  -t rbernon/proton-amd64:$(STEAMRT_VERSION) \
 	  build
 	docker tag rbernon/proton-amd64:$(STEAMRT_VERSION) rbernon/proton-amd64:latest
@@ -48,7 +48,7 @@ docker-proton-i386: proton.Dockerfile docker-steamrt-i386
 	rm -rf build; mkdir -p build
 	docker build -f $< \
 	  --build-arg=ARCH=i686 \
-	  --build-arg=BASE_IMAGE=rbernon/steamrt-i386 \
+	  --build-arg=BASE_IMAGE=rbernon/steamrt-i386:$(STEAMRT_VERSION) \
 	  -t rbernon/proton-i386:$(STEAMRT_VERSION) \
 	  build
 	docker tag rbernon/proton-i386:$(STEAMRT_VERSION) rbernon/proton-i386:latest
