@@ -171,4 +171,5 @@ RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.
 && make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
 && rm -rf /tmp/gcc-$GCC_VERSION \
 ;
+RUN bash -c 'ls /usr/bin/{,*-}{gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'
 CMD ["/bin/bash"]
