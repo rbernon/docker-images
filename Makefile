@@ -4,7 +4,6 @@ STEAMRT_SDKBASE = com.valvesoftware.SteamRuntime.Sdk
 
 all steamrt: docker-steamrt-amd64 docker-steamrt-i386
 all proton: docker-proton-amd64 docker-proton-i386
-all wine: docker-wine-amd64 docker-wine-i386
 
 version:
 	@echo $(STEAMRT_VERSION)
@@ -63,30 +62,3 @@ docker-proton-i386: proton.Dockerfile docker-steamrt-i386
 	docker push rbernon/proton-i386:$(STEAMRT_VERSION)
 	docker push rbernon/proton-i386:latest
 .PHONY: docker-proton-i386
-
-docker-proton-build: proton-build.Dockerfile steam-runtime.tar.xz
-	rm -rf build; mkdir -p build
-	cp steam-runtime.tar.xz build
-	docker build -f $< -t rbernon/proton-build:$(STEAMRT_VERSION) build
-	docker tag rbernon/proton-build:$(STEAMRT_VERSION) rbernon/proton-build:latest
-	docker push rbernon/proton-build:$(STEAMRT_VERSION)
-	docker push rbernon/proton-build:latest
-.PHONY: docker-proton-build
-
-docker-wine-amd64: wine.Dockerfile
-	rm -rf build; mkdir -p build
-	docker build -f $< \
-	  --build-arg=BASE_IMAGE=debian \
-	  -t rbernon/wine-amd64:latest \
-	  build
-	docker push rbernon/wine-amd64:latest
-.PHONY: docker-wine-amd64
-
-docker-wine-i386: wine.Dockerfile
-	rm -rf build; mkdir -p build
-	docker build -f $< \
-	  --build-arg=BASE_IMAGE=i386/debian\
-	   -t rbernon/wine-i386:latest \
-	   build
-	docker push rbernon/wine-i386:latest
-.PHONY: docker-wine-i386
