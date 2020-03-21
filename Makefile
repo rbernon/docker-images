@@ -8,24 +8,20 @@ all proton: docker-proton-amd64 docker-proton-i386
 version:
 	@echo $(STEAMRT_VERSION)
 
-$(STEAMRT_SDKBASE)-%:
+$(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-%: $(shell mkdir -p $(STEAMRT_VERSION))
 	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -O $@
-steam-runtime.tar.xz:
+$(STEAMRT_VERSION)/steam-runtime.tar.xz: $(shell mkdir -p $(STEAMRT_VERSION))
 	wget $(STEAMRT_URLBASE)/steam-runtime.tar.xz -O $@
 
-docker-steamrt-amd64: $(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.Dockerfile $(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz
-	rm -rf build; mkdir -p build
-	cp $(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz build
-	docker build -f $< -t rbernon/steamrt-amd64:$(STEAMRT_VERSION) build
+docker-steamrt-amd64: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz
+	docker build -f $< -t rbernon/steamrt-amd64:$(STEAMRT_VERSION) $(STEAMRT_VERSION)
 	docker tag rbernon/steamrt-amd64:$(STEAMRT_VERSION) rbernon/steamrt-amd64:latest
 	docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
 	docker push rbernon/steamrt-amd64:latest
 .PHONY: docker-steamrt-amd64
 
-docker-steamrt-i386: $(STEAMRT_SDKBASE)-i386-scout-sysroot.Dockerfile $(STEAMRT_SDKBASE)-i386-scout-sysroot.tar.gz
-	rm -rf build; mkdir -p build
-	cp $(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz build
-	docker build -f $< -t rbernon/steamrt-i386:$(STEAMRT_VERSION) .
+docker-steamrt-i386: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.tar.gz
+	docker build -f $< -t rbernon/steamrt-i386:$(STEAMRT_VERSION) $(STEAMRT_VERSION)
 	docker tag rbernon/steamrt-i386:$(STEAMRT_VERSION) rbernon/steamrt-i386:latest
 	docker push rbernon/steamrt-i386:$(STEAMRT_VERSION)
 	docker push rbernon/steamrt-i386:latest
