@@ -28,7 +28,7 @@ RUN wget -qO- https://ftp.gnu.org/gnu/bison/bison-$BISON_VERSION.tar.xz | tar xJ
   --prefix=/usr \
   MAKEINFO=true \
   CFLAGS=-fuse-ld=gold \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/bison-$BISON_VERSION \
 ;
 ARG ARCH
@@ -47,7 +47,7 @@ RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
   --disable-nls \
   --disable-werror \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/binutils-$BINUTILS_VERSION \
 ;
 ARG MINGW_VERSION
@@ -60,7 +60,7 @@ RUN wget -qO- https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w
   --enable-secure-api \
   --enable-idl \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 ;
 ARG GCC_VERSION
 RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz | tar xJf - -C /tmp \
@@ -84,7 +84,7 @@ RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.
   --with-system-mpfr \
   --with-system-mpc \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true all-gcc && make -j8 MAKEINFO=true install-gcc \
+&& make -j8 MAKEINFO=true all-gcc && make -j8 MAKEINFO=true install-strip-gcc \
 && rm -rf /tmp/gcc-$GCC_VERSION \
 ;
 RUN wget -qO- https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-$MINGW_VERSION.tar.bz2 | tar xjf - -C /tmp \
@@ -94,7 +94,7 @@ RUN wget -qO- https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w
   --host=$ARCH-w64-mingw32 \
   --enable-wildcard \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/mingw-w64-$MINGW_VERSION \
 ;
 RUN wget -qO- https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-$MINGW_VERSION.tar.bz2 | tar xjf - -C /tmp \
@@ -103,7 +103,7 @@ RUN wget -qO- https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w
   --prefix=/usr/$ARCH-w64-mingw32/ \
   --host=$ARCH-w64-mingw32 \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/mingw-w64-$MINGW_VERSION \
 ;
 RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz | tar xJf - -C /tmp \
@@ -126,7 +126,7 @@ RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.
   --with-system-mpfr \
   --with-system-mpc \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/gcc-$GCC_VERSION \
 ;
 RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz | tar xzf - -C /tmp \
@@ -145,7 +145,7 @@ RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
   --disable-nls \
   --disable-werror \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/binutils-$BINUTILS_VERSION \
 ;
 RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz | tar xJf - -C /tmp \
@@ -168,7 +168,7 @@ RUN wget -qO- https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.
   --with-system-mpfr \
   --with-system-mpc \
   MAKEINFO=true \
-&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install \
+&& make -j8 MAKEINFO=true && make -j8 MAKEINFO=true install-strip \
 && rm -rf /tmp/gcc-$GCC_VERSION \
 ;
 RUN bash -c 'ls /usr/bin/{,*-}{gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'
