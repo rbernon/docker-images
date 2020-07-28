@@ -51,7 +51,7 @@ docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
 	  --build-arg GCC_VERSION=9.3.0 \
 	  --build-arg ISL_VERSION=0.22 \
 	  --build-arg MINGW_VERSION=v7.0.0 \
-	  --build-arg RUST_VERSION=1.42.0 \
+	  --build-arg RUST_VERSION=1.44.1 \
 	  -t rbernon/proton-amd64:$(STEAMRT_VERSION) \
 	  -t rbernon/proton-amd64:latest \
 	  build
@@ -68,7 +68,7 @@ docker-proton-i386: proton.Dockerfile docker-steamrt-i386
 	  --build-arg GCC_VERSION=9.3.0 \
 	  --build-arg ISL_VERSION=0.22 \
 	  --build-arg MINGW_VERSION=v7.0.0 \
-	  --build-arg RUST_VERSION=1.42.0 \
+	  --build-arg RUST_VERSION=1.44.1 \
 	  -t rbernon/proton-i386:$(STEAMRT_VERSION) \
 	  -t rbernon/proton-i386:latest \
 	  build

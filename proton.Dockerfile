@@ -343,9 +343,10 @@ ARG GCC_VERSION
 RUN bash -c 'mkdir -p /usr/lib/bfd-plugins/ && cp /usr/lib/gcc/$ARCH-linux-gnu/$GCC_VERSION/liblto_plugin*.so* /usr/lib/bfd-plugins/'
 RUN bash -c 'ls /usr/bin/{,*-}{cc,c++,gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'
 
+ARG ARCH
 ARG RUST_VERSION
 ENV RUSTUP_HOME=/opt/rust
-RUN curl -sSf https://sh.rustup.rs | env CARGO_HOME=/opt/rust sh -s -- -y --no-modify-path --default-toolchain "$RUST_VERSION"
+RUN curl -sSf https://sh.rustup.rs | env CARGO_HOME=/opt/rust sh -s -- -y --no-modify-path --default-toolchain "$RUST_VERSION-$ARCH"
 RUN bash -c 'ls /opt/rust/bin/* | xargs -n1 -I{} ln -sf {} /usr/bin/'
 
 CMD ["/bin/bash"]
