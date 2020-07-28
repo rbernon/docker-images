@@ -45,7 +45,7 @@ docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
 	docker build -f $< \
 	  --build-arg ARCH=x86_64 \
 	  --build-arg BASE_IMAGE=rbernon/steamrt-amd64:$(STEAMRT_VERSION) \
-	  --build-arg BINUTILS_VERSION=2.34 \
+	  --build-arg BINUTILS_VERSION=2.35 \
 	  --build-arg BISON_VERSION=3.5 \
 	  --build-arg CCACHE_VERSION=3.7.9 \
 	  --build-arg GCC_VERSION=9.3.0 \
@@ -62,7 +62,7 @@ docker-proton-i386: proton.Dockerfile docker-steamrt-i386
 	docker build -f $< \
 	  --build-arg ARCH=i686 \
 	  --build-arg BASE_IMAGE=rbernon/steamrt-i386:$(STEAMRT_VERSION) \
-	  --build-arg BINUTILS_VERSION=2.34 \
+	  --build-arg BINUTILS_VERSION=2.35 \
 	  --build-arg BISON_VERSION=3.5 \
 	  --build-arg CCACHE_VERSION=3.7.9 \
 	  --build-arg GCC_VERSION=9.3.0 \
