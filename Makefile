@@ -174,3 +174,26 @@ docker-proton-i386: proton.Dockerfile docker-steamrt-i386
 	  -t rbernon/proton-i386:$(STEAMRT_VERSION) \
 	  -t rbernon/proton-i386:latest \
 	  build
+
+WINE_BASE_IMAGE_i686 = i386/debian:unstable
+WINE_BASE_IMAGE_x86_64 = debian:unstable
+
+define create-wine-rules
+.PHONY: wine-$(1)
+all wine: wine-$(1)
+wine-$(1): wine.Dockerfile | gcc-$(1)-linux-gnu gcc-$(1)-w64-mingw32 mingw-$(1) binutils-$(1)-linux-gnu binutils-$(1)-w64-mingw32
+	rm -rf build; mkdir -p build
+	docker build -f $$< \
+	  --build-arg ARCH=$(1) \
+	  --build-arg BASE_IMAGE=$(WINE_BASE_IMAGE_$(1)) \
+	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
+	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
+	  --build-arg GCC_VERSION=$(GCC_VERSION) \
+	  -t rbernon/wine-$(1):latest \
+	  build
+push::
+	docker push rbernon/wine-$(1):latest
+endef
+
+$(eval $(call create-wine-rules,i686))
+$(eval $(call create-wine-rules,x86_64))
