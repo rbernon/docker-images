@@ -43,6 +43,7 @@ BASE_IMAGE_i686 = i386/ubuntu:12.04
 BASE_IMAGE_x86_64 = ubuntu:12.04
 
 LIBISL_VERSION = 0.22.1
+BINUTILS_VERSION = 2.35
 
 define create-libisl-rules
 .PHONY: libisl-$(1)
@@ -64,6 +65,30 @@ endef
 
 $(eval $(call create-libisl-rules,i686))
 $(eval $(call create-libisl-rules,x86_64))
+
+define create-binutils-rules
+.PHONY: binutils-$(1)-$(2)
+all binutils: binutils-$(1)-$(2)
+binutils-$(1)-$(2): binutils.Dockerfile | libisl-$(1)
+	rm -rf build; mkdir -p build
+	docker build -f $$< \
+	  --build-arg ARCH=$(1) \
+	  --build-arg TARGET=$(2) \
+	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
+	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
+	  -t rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  -t rbernon/binutils-$(1)-$(2):latest \
+	  build
+push::
+	docker push rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	docker push rbernon/binutils-$(1)-$(2):latest
+endef
+
+$(eval $(call create-binutils-rules,i686,w64-mingw32))
+$(eval $(call create-binutils-rules,i686,linux-gnu))
+$(eval $(call create-binutils-rules,x86_64,w64-mingw32))
+$(eval $(call create-binutils-rules,x86_64,linux-gnu))
 
 .PHONY: docker-proton-amd64
 docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
