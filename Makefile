@@ -44,6 +44,8 @@ BASE_IMAGE_x86_64 = ubuntu:12.04
 
 LIBISL_VERSION = 0.22.1
 BINUTILS_VERSION = 2.35
+GCC_VERSION = 9.3.0
+MINGW_VERSION = 7.0.0
 
 define create-libisl-rules
 .PHONY: libisl-$(1)
@@ -89,6 +91,29 @@ $(eval $(call create-binutils-rules,i686,w64-mingw32))
 $(eval $(call create-binutils-rules,i686,linux-gnu))
 $(eval $(call create-binutils-rules,x86_64,w64-mingw32))
 $(eval $(call create-binutils-rules,x86_64,linux-gnu))
+
+define create-mingw-rules
+.PHONY: mingw-$(1)
+all mingw: mingw-$(1) | binutils-$(1)-w64-mingw32 libisl-$(1)
+mingw-$(1): mingw.Dockerfile
+	rm -rf build; mkdir -p build
+	docker build -f $$< \
+	  --build-arg ARCH=$(1) \
+	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
+	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
+	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
+	  --build-arg GCC_VERSION=$(GCC_VERSION) \
+	  -t rbernon/mingw-$(1):$(MINGW_VERSION) \
+	  -t rbernon/mingw-$(1):latest \
+	  build
+push::
+	docker push rbernon/mingw-$(1):$(MINGW_VERSION)
+	docker push rbernon/mingw-$(1):latest
+endef
+
+$(eval $(call create-mingw-rules,i686))
+$(eval $(call create-mingw-rules,x86_64))
 
 .PHONY: docker-proton-amd64
 docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
