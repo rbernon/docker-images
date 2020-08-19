@@ -39,6 +39,32 @@ docker-steamrt-i386: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.Do
 	  -t rbernon/steamrt-i386:latest \
 	  $(STEAMRT_VERSION)
 
+BASE_IMAGE_i686 = i386/ubuntu:12.04
+BASE_IMAGE_x86_64 = ubuntu:12.04
+
+LIBISL_VERSION = 0.22.1
+
+define create-libisl-rules
+.PHONY: libisl-$(1)
+all libisl: libisl-$(1)
+libisl-$(1): libisl.Dockerfile
+	rm -rf build; mkdir -p build
+	docker build -f $$< \
+	  --build-arg ARCH=$(1) \
+	  --build-arg TARGET=$(2) \
+	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
+	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  -t rbernon/libisl-$(1):$(LIBISL_VERSION) \
+	  -t rbernon/libisl-$(1):latest \
+	  build
+push::
+	docker push rbernon/libisl-$(1):$(LIBISL_VERSION)
+	docker push rbernon/libisl-$(1):latest
+endef
+
+$(eval $(call create-libisl-rules,i686))
+$(eval $(call create-libisl-rules,x86_64))
+
 .PHONY: docker-proton-amd64
 docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
 	rm -rf build; mkdir -p build
