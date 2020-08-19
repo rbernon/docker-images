@@ -115,6 +115,32 @@ endef
 $(eval $(call create-mingw-rules,i686))
 $(eval $(call create-mingw-rules,x86_64))
 
+define create-gcc-rules
+.PHONY: gcc-$(1)-$(2)
+all gcc: gcc-$(1)-$(2)
+gcc-$(1)-$(2): gcc.Dockerfile | mingw-$(1) binutils-$(1)-$(2)
+	rm -rf build; mkdir -p build
+	docker build -f $$< \
+	  --build-arg ARCH=$(1) \
+	  --build-arg TARGET=$(2) \
+	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
+	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
+	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
+	  --build-arg GCC_VERSION=$(GCC_VERSION) \
+	  -t rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
+	  -t rbernon/gcc-$(1)-$(2):latest \
+	  build
+push::
+	docker push rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
+	docker push rbernon/gcc-$(1)-$(2):latest
+endef
+
+$(eval $(call create-gcc-rules,i686,linux-gnu))
+$(eval $(call create-gcc-rules,x86_64,linux-gnu))
+$(eval $(call create-gcc-rules,i686,w64-mingw32))
+$(eval $(call create-gcc-rules,x86_64,w64-mingw32))
+
 .PHONY: docker-proton-amd64
 docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
 	rm -rf build; mkdir -p build
