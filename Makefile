@@ -2,9 +2,6 @@ STEAMRT_VERSION = $(shell cat $(HOME)/.steam/root/ubuntu12_32/steam-runtime/vers
 STEAMRT_URLBASE = http://repo.steampowered.com/steamrt-images-scout/snapshots/$(STEAMRT_VERSION)
 STEAMRT_SDKBASE = com.valvesoftware.SteamRuntime.Sdk
 
-all steamrt: docker-steamrt-amd64 docker-steamrt-i386
-all proton: docker-proton-amd64 docker-proton-i386
-
 $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-%: $(shell mkdir -p $(STEAMRT_VERSION))
 	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -O $@
 $(STEAMRT_VERSION)/steam-runtime.tar.xz: $(shell mkdir -p $(STEAMRT_VERSION))
@@ -14,30 +11,27 @@ $(STEAMRT_VERSION)/steam-runtime.tar.xz: $(shell mkdir -p $(STEAMRT_VERSION))
 version:
 	@echo $(STEAMRT_VERSION)
 
-.PHONY: push
-push:
-	docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
-	docker push rbernon/steamrt-amd64:latest
-	docker push rbernon/steamrt-i386:$(STEAMRT_VERSION)
-	docker push rbernon/steamrt-i386:latest
-	docker push rbernon/proton-amd64:$(STEAMRT_VERSION)
-	docker push rbernon/proton-amd64:latest
-	docker push rbernon/proton-i386:$(STEAMRT_VERSION)
-	docker push rbernon/proton-i386:latest
-
-.PHONY: docker-steamrt-amd64
-docker-steamrt-amd64: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz
+.PHONY: steamrt-amd64
+all steamrt: steamrt-amd64
+steamrt-amd64: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz
 	docker build -f $< \
 	  -t rbernon/steamrt-amd64:$(STEAMRT_VERSION) \
 	  -t rbernon/steamrt-amd64:latest \
 	  $(STEAMRT_VERSION)
 
-.PHONY: docker-steamrt-i386
-docker-steamrt-i386: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.tar.gz
+.PHONY: steamrt-i386
+all steamrt: steamrt-i386
+steamrt-i386: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.tar.gz
 	docker build -f $< \
 	  -t rbernon/steamrt-i386:$(STEAMRT_VERSION) \
 	  -t rbernon/steamrt-i386:latest \
 	  $(STEAMRT_VERSION)
+
+push::
+	docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
+	docker push rbernon/steamrt-amd64:latest
+	docker push rbernon/steamrt-i386:$(STEAMRT_VERSION)
+	docker push rbernon/steamrt-i386:latest
 
 BASE_IMAGE_i686 = i386/ubuntu:12.04
 BASE_IMAGE_x86_64 = ubuntu:12.04
@@ -141,39 +135,34 @@ $(eval $(call create-gcc-rules,x86_64,linux-gnu))
 $(eval $(call create-gcc-rules,i686,w64-mingw32))
 $(eval $(call create-gcc-rules,x86_64,w64-mingw32))
 
-.PHONY: docker-proton-amd64
-docker-proton-amd64: proton.Dockerfile docker-steamrt-amd64
-	rm -rf build; mkdir -p build
-	docker build -f $< \
-	  --build-arg ARCH=x86_64 \
-	  --build-arg BASE_IMAGE=rbernon/steamrt-amd64:$(STEAMRT_VERSION) \
-	  --build-arg BINUTILS_VERSION=2.35 \
-	  --build-arg BISON_VERSION=3.5 \
-	  --build-arg CCACHE_VERSION=3.7.9 \
-	  --build-arg GCC_VERSION=9.3.0 \
-	  --build-arg ISL_VERSION=0.22 \
-	  --build-arg MINGW_VERSION=v7.0.0 \
-	  --build-arg RUST_VERSION=1.44.1 \
-	  -t rbernon/proton-amd64:$(STEAMRT_VERSION) \
-	  -t rbernon/proton-amd64:latest \
-	  build
+PROTON_BASE_IMAGE_i686 = rbernon/steamrt-i386:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE_x86_64 = rbernon/steamrt-amd64:$(STEAMRT_VERSION)
 
-.PHONY: docker-proton-i386
-docker-proton-i386: proton.Dockerfile docker-steamrt-i386
+define create-proton-rules
+.PHONY: proton-$(2)
+all proton: proton-$(2)
+proton-$(2): proton.Dockerfile | steamrt-$(2) gcc-$(1)-linux-gnu gcc-$(1)-w64-mingw32 mingw-$(1) binutils-$(1)-linux-gnu binutils-$(1)-w64-mingw32
 	rm -rf build; mkdir -p build
-	docker build -f $< \
-	  --build-arg ARCH=i686 \
-	  --build-arg BASE_IMAGE=rbernon/steamrt-i386:$(STEAMRT_VERSION) \
-	  --build-arg BINUTILS_VERSION=2.35 \
+	docker build -f $$< \
+	  --build-arg ARCH=$(1) \
+	  --build-arg BASE_IMAGE=$(PROTON_BASE_IMAGE_$(1)) \
+	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
+	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
+	  --build-arg GCC_VERSION=$(GCC_VERSION) \
 	  --build-arg BISON_VERSION=3.5 \
 	  --build-arg CCACHE_VERSION=3.7.9 \
-	  --build-arg GCC_VERSION=9.3.0 \
-	  --build-arg ISL_VERSION=0.22 \
-	  --build-arg MINGW_VERSION=v7.0.0 \
 	  --build-arg RUST_VERSION=1.44.1 \
-	  -t rbernon/proton-i386:$(STEAMRT_VERSION) \
-	  -t rbernon/proton-i386:latest \
+	  -t rbernon/proton-$(2):$(STEAMRT_VERSION) \
+	  -t rbernon/proton-$(2):latest \
 	  build
+push::
+	docker push rbernon/proton-$(2):$(STEAMRT_VERSION)
+	docker push rbernon/proton-$(2):latest
+endef
+
+$(eval $(call create-proton-rules,i686,i386))
+$(eval $(call create-proton-rules,x86_64,amd64))
 
 WINE_BASE_IMAGE_i686 = i386/debian:unstable
 WINE_BASE_IMAGE_x86_64 = debian:unstable
