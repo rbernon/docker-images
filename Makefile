@@ -30,10 +30,10 @@ steamrt-i386: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.Dockerfil
 	  $(STEAMRT_VERSION)
 
 push::
-	docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
-	docker push rbernon/steamrt-amd64:latest
-	docker push rbernon/steamrt-i386:$(STEAMRT_VERSION)
-	docker push rbernon/steamrt-i386:latest
+	-docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
+	-docker push rbernon/steamrt-amd64:latest
+	-docker push rbernon/steamrt-i386:$(STEAMRT_VERSION)
+	-docker push rbernon/steamrt-i386:latest
 
 BASE_IMAGE_i686 = i386/ubuntu:12.04
 BASE_IMAGE_x86_64 = ubuntu:12.04
@@ -57,8 +57,8 @@ libisl-$(1): libisl.Dockerfile
 	  -t rbernon/libisl-$(1):latest \
 	  build
 push::
-	docker push rbernon/libisl-$(1):$(LIBISL_VERSION)
-	docker push rbernon/libisl-$(1):latest
+	-docker push rbernon/libisl-$(1):$(LIBISL_VERSION)
+	-docker push rbernon/libisl-$(1):latest
 endef
 
 $(eval $(call create-libisl-rules,i686))
@@ -79,8 +79,8 @@ binutils-$(1)-$(2): binutils.Dockerfile | libisl-$(1)
 	  -t rbernon/binutils-$(1)-$(2):latest \
 	  build
 push::
-	docker push rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
-	docker push rbernon/binutils-$(1)-$(2):latest
+	-docker push rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-docker push rbernon/binutils-$(1)-$(2):latest
 endef
 
 $(eval $(call create-binutils-rules,i686,w64-mingw32))
@@ -104,8 +104,8 @@ mingw-$(1): mingw.Dockerfile
 	  -t rbernon/mingw-$(1):latest \
 	  build
 push::
-	docker push rbernon/mingw-$(1):$(MINGW_VERSION)
-	docker push rbernon/mingw-$(1):latest
+	-docker push rbernon/mingw-$(1):$(MINGW_VERSION)
+	-docker push rbernon/mingw-$(1):latest
 endef
 
 $(eval $(call create-mingw-rules,i686))
@@ -128,8 +128,8 @@ gcc-$(1)-$(2): gcc.Dockerfile | mingw-$(1) binutils-$(1)-$(2)
 	  -t rbernon/gcc-$(1)-$(2):latest \
 	  build
 push::
-	docker push rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
-	docker push rbernon/gcc-$(1)-$(2):latest
+	-docker push rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
+	-docker push rbernon/gcc-$(1)-$(2):latest
 endef
 
 $(eval $(call create-gcc-rules,i686,linux-gnu))
@@ -159,8 +159,8 @@ proton-$(2): proton.Dockerfile | steamrt-$(2) gcc-$(1)-linux-gnu gcc-$(1)-w64-mi
 	  -t rbernon/proton-$(2):latest \
 	  build
 push::
-	docker push rbernon/proton-$(2):$(STEAMRT_VERSION)
-	docker push rbernon/proton-$(2):latest
+	-docker push rbernon/proton-$(2):$(STEAMRT_VERSION)
+	-docker push rbernon/proton-$(2):latest
 endef
 
 $(eval $(call create-proton-rules,i686,i386))
@@ -183,7 +183,7 @@ wine-$(1): wine.Dockerfile | gcc-$(1)-linux-gnu gcc-$(1)-w64-mingw32 mingw-$(1) 
 	  -t rbernon/wine-$(1):latest \
 	  build
 push::
-	docker push rbernon/wine-$(1):latest
+	-docker push rbernon/wine-$(1):latest
 endef
 
 $(eval $(call create-wine-rules,i686))
