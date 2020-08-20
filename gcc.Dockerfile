@@ -43,13 +43,12 @@ RUN wget -qO- http://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.x
   --enable-lto \
   --enable-plugin \
   --enable-threads=posix \
-  --enable-static \
   --disable-bootstrap \
   --disable-checking \
   --disable-multilib \
   --disable-nls \
-  --disable-sjlj-exceptions \
   --disable-shared \
+  --disable-sjlj-exceptions \
   --disable-werror \
   --with-arch=nocona \
   --with-default-libstdcxx-abi=new \
