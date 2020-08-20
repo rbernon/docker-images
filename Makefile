@@ -1,6 +1,8 @@
-STEAMRT_VERSION = $(shell cat $(HOME)/.steam/root/ubuntu12_32/steam-runtime/version.txt | tr '_' ' ' | awk '{print $$2}')
-STEAMRT_URLBASE = http://repo.steampowered.com/steamrt-images-scout/snapshots/$(STEAMRT_VERSION)
-STEAMRT_SDKBASE = com.valvesoftware.SteamRuntime.Sdk
+STEAMRT_DEFAULT := 0.20200720.0
+STEAMRT_INSTALL := $(HOME)/.steam/root/ubuntu12_32/steam-runtime
+STEAMRT_VERSION := $(if $(wildcard $(STEAMRT_INSTALL)),$(shell cat $(STEAMRT_INSTALL)/version.txt | tr '_' ' ' | awk '{print $$2}'),$(STEAMRT_DEFAULT))
+STEAMRT_URLBASE := http://repo.steampowered.com/steamrt-images-scout/snapshots/$(STEAMRT_VERSION)
+STEAMRT_SDKBASE := com.valvesoftware.SteamRuntime.Sdk
 
 $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-%: $(shell mkdir -p $(STEAMRT_VERSION))
 	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -O $@
