@@ -6,16 +6,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build libisl
-        run: make libisl
-      - name: Build binutils
-        run: make binutils
-      - name: Build mingw
-        run: make mingw
-      - name: Build gcc
-        run: make gcc
-      - name: Build wine
-        run: make wine
       - name: Build steamrt
         run: make steamrt
       - name: Build proton

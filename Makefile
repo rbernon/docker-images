@@ -38,7 +38,7 @@ push::
 BASE_IMAGE_i686 = i386/ubuntu:12.04
 BASE_IMAGE_x86_64 = ubuntu:12.04
 
-LIBISL_VERSION = 0.22.1
+ISL_VERSION = 0.22.1
 BINUTILS_VERSION = 2.35
 GCC_VERSION = 9.3.0
 MINGW_VERSION = 7.0.0
@@ -52,12 +52,12 @@ libisl-$(1): libisl.Dockerfile
 	  --build-arg ARCH=$(1) \
 	  --build-arg TARGET=$(2) \
 	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
-	  -t rbernon/libisl-$(1):$(LIBISL_VERSION) \
+	  --build-arg ISL_VERSION=$(ISL_VERSION) \
+	  -t rbernon/libisl-$(1):$(ISL_VERSION) \
 	  -t rbernon/libisl-$(1):latest \
 	  build
 push::
-	-docker push rbernon/libisl-$(1):$(LIBISL_VERSION)
+	-docker push rbernon/libisl-$(1):$(ISL_VERSION)
 	-docker push rbernon/libisl-$(1):latest
 endef
 
@@ -73,7 +73,7 @@ binutils-$(1)-$(2): binutils.Dockerfile | libisl-$(1)
 	  --build-arg ARCH=$(1) \
 	  --build-arg TARGET=$(2) \
 	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  -t rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
 	  -t rbernon/binutils-$(1)-$(2):latest \
@@ -96,7 +96,7 @@ mingw-$(1): mingw.Dockerfile
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
 	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
@@ -120,7 +120,7 @@ gcc-$(1)-$(2): gcc.Dockerfile | mingw-$(1) binutils-$(1)-$(2)
 	  --build-arg ARCH=$(1) \
 	  --build-arg TARGET=$(2) \
 	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
@@ -143,12 +143,13 @@ PROTON_BASE_IMAGE_x86_64 = rbernon/steamrt-amd64:$(STEAMRT_VERSION)
 define create-proton-rules
 .PHONY: proton-$(2)
 all proton: proton-$(2)
-proton-$(2): proton.Dockerfile | steamrt-$(2) gcc-$(1)-linux-gnu gcc-$(1)-w64-mingw32 mingw-$(1) binutils-$(1)-linux-gnu binutils-$(1)-w64-mingw32
+proton-$(2): proton.Dockerfile | # steamrt-$(2)
 	rm -rf build; mkdir -p build
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
 	  --build-arg BASE_IMAGE=$(PROTON_BASE_IMAGE_$(1)) \
-	  --build-arg LIBISL_VERSION=$(LIBISL_VERSION) \
+	  --build-arg TARGET_IMAGE=rbernon/steamrt-$(2):$(STEAMRT_VERSION) \
+	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
