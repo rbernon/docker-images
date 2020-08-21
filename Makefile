@@ -5,9 +5,9 @@ STEAMRT_URLBASE := http://repo.steampowered.com/steamrt-images-scout/snapshots/$
 STEAMRT_SDKBASE := com.valvesoftware.SteamRuntime.Sdk
 
 $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-%: $(shell mkdir -p $(STEAMRT_VERSION))
-	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -O $@
+	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -qO $@
 $(STEAMRT_VERSION)/steam-runtime.tar.xz: $(shell mkdir -p $(STEAMRT_VERSION))
-	wget $(STEAMRT_URLBASE)/steam-runtime.tar.xz -O $@
+	wget $(STEAMRT_URLBASE)/steam-runtime.tar.xz -qO $@
 
 .PHONY: version
 version:
@@ -16,71 +16,79 @@ version:
 .PHONY: steamrt-amd64
 all steamrt: steamrt-amd64
 steamrt-amd64: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-scout-sysroot.tar.gz
+	-docker pull rbernon/steamrt-amd64:$(STEAMRT_VERSION)
 	docker build -f $< \
+	  --cache-from=rbernon/steamrt-amd64:$(STEAMRT_VERSION) \
 	  -t rbernon/steamrt-amd64:$(STEAMRT_VERSION) \
 	  -t rbernon/steamrt-amd64:latest \
 	  $(STEAMRT_VERSION)
+push-steamrt-amd64::
+	-docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
+	-docker push rbernon/steamrt-amd64:latest
 
 .PHONY: steamrt-i386
 all steamrt: steamrt-i386
 steamrt-i386: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-i386-scout-sysroot.tar.gz
+	-docker pull rbernon/steamrt-i386:$(STEAMRT_VERSION)
 	docker build -f $< \
+	  --cache-from=rbernon/steamrt-i386:$(STEAMRT_VERSION) \
 	  -t rbernon/steamrt-i386:$(STEAMRT_VERSION) \
 	  -t rbernon/steamrt-i386:latest \
 	  $(STEAMRT_VERSION)
-
-push::
-	-docker push rbernon/steamrt-amd64:$(STEAMRT_VERSION)
-	-docker push rbernon/steamrt-amd64:latest
+push-steamrt-i386::
 	-docker push rbernon/steamrt-i386:$(STEAMRT_VERSION)
 	-docker push rbernon/steamrt-i386:latest
 
-BASE_IMAGE_i686 = i386/ubuntu:12.04
-BASE_IMAGE_x86_64 = ubuntu:12.04
+push:: push-steamrt-amd64 push-steamrt-i386
+
+BASE_IMAGE_i686 = i386/debian:unstable
+BASE_IMAGE_x86_64 = debian:unstable
 
 ISL_VERSION = 0.22.1
 BINUTILS_VERSION = 2.35
 GCC_VERSION = 9.3.0
 MINGW_VERSION = 7.0.0
 
-define create-libisl-rules
-.PHONY: libisl-$(1)
-all libisl: libisl-$(1)
-libisl-$(1): libisl.Dockerfile
+define create-build-base-rules
+.PHONY: build-base-$(1)
+all build-base: build-base-$(1)
+build-base-$(1): build-base.Dockerfile
 	rm -rf build; mkdir -p build
+	-docker pull rbernon/build-base-$(1):latest
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
-	  --build-arg TARGET=$(2) \
 	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg ISL_VERSION=$(ISL_VERSION) \
-	  -t rbernon/libisl-$(1):$(ISL_VERSION) \
-	  -t rbernon/libisl-$(1):latest \
+	  --cache-from=rbernon/build-base-$(1):latest \
+	  -t rbernon/build-base-$(1):latest \
 	  build
-push::
-	-docker push rbernon/libisl-$(1):$(ISL_VERSION)
-	-docker push rbernon/libisl-$(1):latest
+push-build-base-$(1)::
+	docker push rbernon/build-base-$(1):latest
+push:: push-build-base-$(1)
 endef
 
-$(eval $(call create-libisl-rules,i686))
-$(eval $(call create-libisl-rules,x86_64))
+$(eval $(call create-build-base-rules,i686))
+$(eval $(call create-build-base-rules,x86_64))
 
 define create-binutils-rules
 .PHONY: binutils-$(1)-$(2)
 all binutils: binutils-$(1)-$(2)
-binutils-$(1)-$(2): binutils.Dockerfile | libisl-$(1)
+binutils-$(1)-$(2): binutils.Dockerfile
 	rm -rf build; mkdir -p build
+	-docker pull rbernon/build-base-$(1):latest
+	-docker pull rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
 	  --build-arg TARGET=$(2) \
-	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/build-base-$(1):latest \
+	  --cache-from=rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
 	  -t rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
 	  -t rbernon/binutils-$(1)-$(2):latest \
 	  build
-push::
+push-binutils-$(1)-$(2)::
 	-docker push rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	-docker push rbernon/binutils-$(1)-$(2):latest
+push:: push-binutils-$(1)-$(2)
 endef
 
 $(eval $(call create-binutils-rules,i686,w64-mingw32))
@@ -89,33 +97,57 @@ $(eval $(call create-binutils-rules,x86_64,w64-mingw32))
 $(eval $(call create-binutils-rules,x86_64,linux-gnu))
 
 define create-mingw-rules
-.PHONY: mingw-$(1)
-all mingw: mingw-$(1) | binutils-$(1)-w64-mingw32 libisl-$(1)
-mingw-$(1): mingw.Dockerfile
+.PHONY: mingw-$(2)-$(1)
+all mingw: mingw-$(2)-$(1)
+mingw-$(2)-$(1): mingw-$(2).Dockerfile
 	rm -rf build; mkdir -p build
+	-docker pull rbernon/build-base-$(1):latest
+	-docker pull rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull rbernon/mingw-headers-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
-	  --build-arg BASE_IMAGE=$(BASE_IMAGE_$(1)) \
-	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
-	  -t rbernon/mingw-$(1):$(MINGW_VERSION) \
-	  -t rbernon/mingw-$(1):latest \
+	  --cache-from=rbernon/build-base-$(1):latest \
+	  --cache-from=rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/mingw-headers-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  -t rbernon/mingw-$(2)-$(1):$(MINGW_VERSION) \
+	  -t rbernon/mingw-$(2)-$(1):latest \
 	  build
-push::
-	-docker push rbernon/mingw-$(1):$(MINGW_VERSION)
-	-docker push rbernon/mingw-$(1):latest
+push-mingw-$(2)-$(1)::
+	-docker push rbernon/mingw-$(2)-$(1):$(MINGW_VERSION)
+	-docker push rbernon/mingw-$(2)-$(1):latest
+push:: push-mingw-$(2)-$(1)
 endef
 
-$(eval $(call create-mingw-rules,i686))
-$(eval $(call create-mingw-rules,x86_64))
+$(eval $(call create-mingw-rules,i686,headers))
+$(eval $(call create-mingw-rules,i686,gcc))
+$(eval $(call create-mingw-rules,i686,crt))
+$(eval $(call create-mingw-rules,i686,pthreads))
+$(eval $(call create-mingw-rules,x86_64,headers))
+$(eval $(call create-mingw-rules,x86_64,gcc))
+$(eval $(call create-mingw-rules,x86_64,crt))
+$(eval $(call create-mingw-rules,x86_64,pthreads))
 
 define create-gcc-rules
 .PHONY: gcc-$(1)-$(2)
 all gcc: gcc-$(1)-$(2)
-gcc-$(1)-$(2): gcc.Dockerfile | mingw-$(1) binutils-$(1)-$(2)
+gcc-$(1)-$(2): gcc.Dockerfile
 	rm -rf build; mkdir -p build
+	-docker pull rbernon/build-base-$(1):latest
+	-docker pull rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-docker pull rbernon/mingw-headers-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
 	  --build-arg TARGET=$(2) \
@@ -124,12 +156,20 @@ gcc-$(1)-$(2): gcc.Dockerfile | mingw-$(1) binutils-$(1)-$(2)
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
+	  --cache-from=rbernon/build-base-$(1):latest \
+	  --cache-from=rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/mingw-headers-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
 	  -t rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
 	  -t rbernon/gcc-$(1)-$(2):latest \
 	  build
-push::
+push-gcc-$(1)-$(2)::
 	-docker push rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
 	-docker push rbernon/gcc-$(1)-$(2):latest
+push:: push-gcc-$(1)-$(2)
 endef
 
 $(eval $(call create-gcc-rules,i686,linux-gnu))
@@ -173,18 +213,39 @@ WINE_BASE_IMAGE_x86_64 = debian:unstable
 define create-wine-rules
 .PHONY: wine-$(1)
 all wine: wine-$(1)
-wine-$(1): wine.Dockerfile | gcc-$(1)-linux-gnu gcc-$(1)-w64-mingw32 mingw-$(1) binutils-$(1)-linux-gnu binutils-$(1)-w64-mingw32
+wine-$(1): wine.Dockerfile
 	rm -rf build; mkdir -p build
+	-docker pull rbernon/build-base-$(1):latest
+	-docker pull rbernon/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION)
+	-docker pull rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull rbernon/mingw-headers-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/gcc-$(1)-linux-gnu:$(GCC_VERSION)
+	-docker pull rbernon/gcc-$(1)-w64-mingw32:$(GCC_VERSION)
+	-docker pull rbernon/wine-$(1):latest
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
 	  --build-arg BASE_IMAGE=$(WINE_BASE_IMAGE_$(1)) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
+	  --cache-from=rbernon/builds-base-$(1):latest \
+	  --cache-from=rbernon/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/mingw-headers-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/gcc-$(1)-linux-gnu:$(GCC_VERSION) \
+	  --cache-from=rbernon/gcc-$(1)-w64-mingw32:$(GCC_VERSION) \
+	  --cache-from=rbernon/wine-$(1):latest \
 	  -t rbernon/wine-$(1):latest \
 	  build
-push::
+push-wine-$(1)::
 	-docker push rbernon/wine-$(1):latest
+push:: push-wine-$(1)
 endef
 
 $(eval $(call create-wine-rules,i686))

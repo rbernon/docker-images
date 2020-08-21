@@ -1,28 +1,11 @@
 ARG ARCH
-ARG BASE_IMAGE
-ARG LIBISL_VERSION
-FROM rbernon/libisl-$ARCH:$LIBISL_VERSION AS libisl
-FROM $BASE_IMAGE AS build
-RUN apt-get update && apt-get install -y \
-  bzip2 \
-  gcc \
-  g++ \
-  libgmp-dev \
-  libmpc-dev \
-  libmpfr-dev \
-  libz-dev \
-  make \
-  wget \
-  xz-utils \
-&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
-&& rm -rf /var/lib/apt/lists/*
-COPY --from=libisl /usr /usr
+FROM rbernon/build-base-$ARCH:latest AS build
 
 ARG ARCH
 ARG TARGET
 ARG BINUTILS_VERSION
-RUN wget -qO- http://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz | tar xJf - -C /tmp \
-&& cd /tmp/binutils-$BINUTILS_VERSION \
+RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz | tar xJf - -C /tmp
+RUN cd /tmp/binutils-$BINUTILS_VERSION \
 && ./configure --quiet \
   --prefix=/usr \
   --libdir=/usr/lib \
@@ -33,10 +16,10 @@ RUN wget -qO- http://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz 
   --enable-gold \
   --enable-ld=default \
   --enable-lto \
-  --enable-plugins \
   --enable-static \
   --disable-multilib \
   --disable-nls \
+  --disable-plugins \
   --disable-shared \
   --disable-werror \
   --with-gmp \
@@ -45,11 +28,8 @@ RUN wget -qO- http://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz 
   --with-mpfr \
   --with-system-zlib \
   MAKEINFO=true \
-&& make --quiet -j8 MAKEINFO=true \
+&& make --quiet -j8 MAKEINFO=true configure-host \
+&& make --quiet -j8 MAKEINFO=true LDFLAGS="-static" \
 && make --quiet -j8 MAKEINFO=true install-strip DESTDIR=/opt \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /tmp/binutils-$BINUTILS_VERSION
-
-FROM scratch AS target
-COPY --from=build /opt/usr /usr
-CMD ["/bin/bash"]

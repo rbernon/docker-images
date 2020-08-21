@@ -5,9 +5,12 @@ ARG MINGW_VERSION
 ARG GCC_VERSION
 FROM rbernon/binutils-$ARCH-linux-gnu:$BINUTILS_VERSION AS binutils-linux
 FROM rbernon/binutils-$ARCH-w64-mingw32:$BINUTILS_VERSION AS binutils-mingw
-FROM rbernon/mingw-$ARCH:$MINGW_VERSION AS mingw
+FROM rbernon/mingw-headers-$ARCH:$MINGW_VERSION AS mingw-headers
+FROM rbernon/mingw-crt-$ARCH:$MINGW_VERSION AS mingw-crt
+FROM rbernon/mingw-pthreads-$ARCH:$MINGW_VERSION AS mingw-pthreads
 FROM rbernon/gcc-$ARCH-linux-gnu:$GCC_VERSION AS gcc-linux
 FROM rbernon/gcc-$ARCH-w64-mingw32:$GCC_VERSION AS gcc-mingw
+
 FROM $BASE_IMAGE AS base
 RUN apt-get update && apt-get install -y \
   autoconf \
@@ -77,11 +80,13 @@ RUN apt-get update && apt-get install -y \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /var/lib/apt/lists/*
 
-COPY --from=binutils-mingw /usr /usr
-COPY --from=binutils-linux /usr /usr
-COPY --from=mingw          /usr /usr
-COPY --from=gcc-mingw      /usr /usr
-COPY --from=gcc-linux      /usr /usr
+COPY --from=binutils-linux /opt/usr /usr
+COPY --from=binutils-mingw /opt/usr /usr
+COPY --from=mingw-headers  /opt/usr /usr
+COPY --from=mingw-crt      /opt/usr /usr
+COPY --from=mingw-pthreads /opt/usr /usr
+COPY --from=gcc-linux      /opt/usr /usr
+COPY --from=gcc-mingw      /opt/usr /usr
 
 RUN bash -c 'mkdir -p /usr/lib/ccache && ls /usr/bin/{,*-}{cc,c++,gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'
 CMD ["/bin/bash"]
