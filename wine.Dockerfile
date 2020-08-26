@@ -56,6 +56,7 @@ RUN apt-get update && apt-get install -y \
   libssl-dev \
   libtiff-dev \
   libudev-dev \
+  libusb-dev \
   libv4l-dev \
   libvkd3d-dev \
   libvulkan-dev \
