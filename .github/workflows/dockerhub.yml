@@ -101,6 +101,32 @@ jobs:
       - name: Push
         run: make push-binutils-x86_64-w64-mingw32
 
+  mingw-widl-i686:
+    # needs: build-base-i686
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-widl-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-widl-i686
+
+  mingw-widl-x86_64:
+    # needs: build-base-x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-widl-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-widl-x86_64
+
   mingw-headers-i686:
     # needs: build-base-i686
     runs-on: ubuntu-latest

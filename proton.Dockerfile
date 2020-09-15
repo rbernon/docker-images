@@ -158,6 +158,23 @@ RUN cd /tmp/mingw-w64-$MINGW_VERSION/mingw-w64-libraries/winpthreads \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /tmp/mingw-w64-$MINGW_VERSION
 
+FROM base AS mingw-widl
+ARG ARCH
+ARG MINGW_VERSION
+RUN wget --no-check-certificate -qO- https://github.com/mirror/mingw-w64/archive/v$MINGW_VERSION.tar.gz | tar xzf - -C /tmp
+RUN cd /tmp/mingw-w64-$MINGW_VERSION/mingw-w64-tools/widl \
+&& ./configure --quiet \
+  --prefix=/usr \
+  --host=$ARCH-linux-gnu \
+  --build=$ARCH-linux-gnu \
+  --target=$ARCH-w64-mingw32 \
+  --program-prefix=$ARCH-w64-mingw32- \
+  MAKEINFO=true \
+&& make --quiet -j8 MAKEINFO=true LDFLAGS="-static" \
+&& make --quiet -j8 MAKEINFO=true install-strip DESTDIR=/opt \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /tmp/mingw-w64-$MINGW_VERSION
+
 FROM base AS gcc-mingw
 ARG ARCH
 ARG GCC_VERSION
@@ -341,6 +358,7 @@ COPY --from=binutils-mingw /opt/usr /usr
 COPY --from=mingw-headers  /opt/usr /usr
 COPY --from=mingw-crt      /opt/usr /usr
 COPY --from=mingw-pthreads /opt/usr /usr
+COPY --from=mingw-widl     /opt/usr /usr
 COPY --from=gcc-mingw      /opt/usr /usr
 COPY --from=binutils-linux /opt/usr /usr
 COPY --from=gcc-linux      /opt/usr /usr

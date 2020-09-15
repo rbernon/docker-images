@@ -107,6 +107,7 @@ mingw-$(2)-$(1): mingw-$(2).Dockerfile
 	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-widl-$(1):$(MINGW_VERSION)
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
@@ -118,6 +119,7 @@ mingw-$(2)-$(1): mingw-$(2).Dockerfile
 	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-widl-$(1):$(MINGW_VERSION) \
 	  -t rbernon/mingw-$(2)-$(1):$(MINGW_VERSION) \
 	  -t rbernon/mingw-$(2)-$(1):latest \
 	  build
@@ -131,10 +133,12 @@ $(eval $(call create-mingw-rules,i686,headers))
 $(eval $(call create-mingw-rules,i686,gcc))
 $(eval $(call create-mingw-rules,i686,crt))
 $(eval $(call create-mingw-rules,i686,pthreads))
+$(eval $(call create-mingw-rules,i686,widl))
 $(eval $(call create-mingw-rules,x86_64,headers))
 $(eval $(call create-mingw-rules,x86_64,gcc))
 $(eval $(call create-mingw-rules,x86_64,crt))
 $(eval $(call create-mingw-rules,x86_64,pthreads))
+$(eval $(call create-mingw-rules,x86_64,widl))
 
 define create-gcc-rules
 .PHONY: gcc-$(1)-$(2)
@@ -147,6 +151,7 @@ gcc-$(1)-$(2): gcc.Dockerfile
 	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-widl-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
 	docker build -f $$< \
 	  --build-arg ARCH=$(1) \
@@ -162,6 +167,7 @@ gcc-$(1)-$(2): gcc.Dockerfile
 	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-widl-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
 	  -t rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
 	  -t rbernon/gcc-$(1)-$(2):latest \
@@ -222,6 +228,7 @@ wine-$(1): wine.Dockerfile
 	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull rbernon/mingw-widl-$(1):$(MINGW_VERSION)
 	-docker pull rbernon/gcc-$(1)-linux-gnu:$(GCC_VERSION)
 	-docker pull rbernon/gcc-$(1)-w64-mingw32:$(GCC_VERSION)
 	-docker pull rbernon/wine-$(1):latest
@@ -238,6 +245,7 @@ wine-$(1): wine.Dockerfile
 	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-widl-$(1):$(MINGW_VERSION) \
 	  --cache-from=rbernon/gcc-$(1)-linux-gnu:$(GCC_VERSION) \
 	  --cache-from=rbernon/gcc-$(1)-w64-mingw32:$(GCC_VERSION) \
 	  --cache-from=rbernon/wine-$(1):latest \

@@ -8,6 +8,7 @@ FROM rbernon/binutils-$ARCH-w64-mingw32:$BINUTILS_VERSION AS binutils-mingw
 FROM rbernon/mingw-headers-$ARCH:$MINGW_VERSION AS mingw-headers
 FROM rbernon/mingw-crt-$ARCH:$MINGW_VERSION AS mingw-crt
 FROM rbernon/mingw-pthreads-$ARCH:$MINGW_VERSION AS mingw-pthreads
+FROM rbernon/mingw-widl-$ARCH:$MINGW_VERSION AS mingw-widl
 FROM rbernon/gcc-$ARCH-linux-gnu:$GCC_VERSION AS gcc-linux
 FROM rbernon/gcc-$ARCH-w64-mingw32:$GCC_VERSION AS gcc-mingw
 
@@ -86,6 +87,7 @@ COPY --from=binutils-mingw /opt/usr /usr
 COPY --from=mingw-headers  /opt/usr /usr
 COPY --from=mingw-crt      /opt/usr /usr
 COPY --from=mingw-pthreads /opt/usr /usr
+COPY --from=mingw-widl     /opt/usr /usr
 COPY --from=gcc-linux      /opt/usr /usr
 COPY --from=gcc-mingw      /opt/usr /usr
 
