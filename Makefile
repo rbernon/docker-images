@@ -56,10 +56,12 @@ RUST_VERSION = 1.44.1
 
 %-linux-gnu.Dockerfile: %.Dockerfile
 	sed -re 's!@TARGET@!linux-gnu!g' \
+	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
 
 %-w64-mingw32.Dockerfile: %.Dockerfile
 	sed -re 's!@TARGET@!w64-mingw32!g' \
+	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
 
 define create-build-base-rules
@@ -145,9 +147,13 @@ $(eval $(call create-mingw-rules,x86_64,crt))
 $(eval $(call create-mingw-rules,x86_64,pthreads))
 $(eval $(call create-mingw-rules,x86_64,widl))
 
+GCC_TARGET_FLAGS_w64-mingw32 = --disable-shared
+GCC_TARGET_FLAGS_linux-gnu =
+
 define create-gcc-rules
 .PHONY: gcc-$(1)-$(2)
 all gcc: gcc-$(1)-$(2)
+gcc-$(1)-$(2): TARGET_FLAGS = $(GCC_TARGET_FLAGS_$(2))
 gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
 	-docker pull rbernon/build-base-$(1):latest

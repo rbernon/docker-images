@@ -26,7 +26,7 @@ RUN wget -qO- http://ftp.gnu.org/gnu/gcc/gcc-@GCC_VERSION@/gcc-@GCC_VERSION@.tar
   --disable-multilib \
   --disable-nls \
   --disable-plugin \
-  --disable-shared \
+  @TARGET_FLAGS@ \
   --disable-sjlj-exceptions \
   --disable-werror \
   --with-arch=nocona \
