@@ -35,6 +35,7 @@ ISL_VERSION = 0.22.1
 BINUTILS_VERSION = 2.35
 GCC_VERSION = 9.3.0
 MINGW_VERSION = 7.0.0
+RUST_VERSION = 1.44.1
 
 define create-build-base-rules
 .PHONY: build-base-$(1)
@@ -174,27 +175,65 @@ PROTON_BASE_IMAGE_i686 = rbernon/steamrt:$(STEAMRT_VERSION)
 PROTON_BASE_IMAGE_x86_64 = rbernon/steamrt:$(STEAMRT_VERSION)
 
 define create-proton-rules
-.PHONY: proton-$(2)
-all proton: proton-$(2)
-proton-$(2): proton.Dockerfile | # steamrt
+.PHONY: proton
+all: proton
+proton: proton.Dockerfile
 	rm -rf build; mkdir -p build
+	-docker pull rbernon/build-base-i686:latest
+	-docker pull rbernon/build-base-x86_64:latest
+	-docker pull rbernon/binutils-i686-linux-gnu:$(BINUTILS_VERSION)
+	-docker pull rbernon/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION)
+	-docker pull rbernon/binutils-i686-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull rbernon/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull rbernon/mingw-headers-i686:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-headers-x86_64:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-gcc-i686:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-gcc-x86_64:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-crt-i686:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-crt-x86_64:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-pthreads-i686:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-pthreads-x86_64:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-widl-i686:$(MINGW_VERSION)
+	-docker pull rbernon/mingw-widl-x86_64:$(MINGW_VERSION)
+	-docker pull rbernon/gcc-i686-linux-gnu:$(GCC_VERSION)
+	-docker pull rbernon/gcc-x86_64-linux-gnu:$(GCC_VERSION)
+	-docker pull rbernon/gcc-i686-w64-mingw32:$(GCC_VERSION)
+	-docker pull rbernon/gcc-x86_64-w64-mingw32:$(GCC_VERSION)
+	-docker pull rbernon/proton:$(STEAMRT_VERSION)
+	-docker pull rbernon/proton:latest
 	docker build -f $$< \
-	  --build-arg ARCH=$(1) \
 	  --build-arg BASE_IMAGE=$(PROTON_BASE_IMAGE_$(1)) \
-	  --build-arg TARGET_IMAGE=rbernon/steamrt:$(STEAMRT_VERSION) \
-	  --build-arg ISL_VERSION=$(ISL_VERSION) \
 	  --build-arg BINUTILS_VERSION=$(BINUTILS_VERSION) \
 	  --build-arg MINGW_VERSION=$(MINGW_VERSION) \
 	  --build-arg GCC_VERSION=$(GCC_VERSION) \
-	  --build-arg BISON_VERSION=3.5 \
-	  --build-arg CCACHE_VERSION=3.7.9 \
-	  --build-arg RUST_VERSION=1.44.1 \
-	  -t rbernon/proton-$(2):$(STEAMRT_VERSION) \
-	  -t rbernon/proton-$(2):latest \
+	  --build-arg RUST_VERSION=$(RUST_VERSION) \
+	  --cache-from=rbernon/builds-base-i686:latest \
+	  --cache-from=rbernon/builds-base-x86_64:latest \
+	  --cache-from=rbernon/binutils-i686-linux-gnu:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/binutils-i686-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=rbernon/mingw-headers-i686:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-headers-x86_64:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-gcc-i686:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-gcc-x86_64:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-crt-i686:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-crt-x86_64:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-pthreads-i686:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-pthreads-x86_64:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-widl-i686:$(MINGW_VERSION) \
+	  --cache-from=rbernon/mingw-widl-x86_64:$(MINGW_VERSION) \
+	  --cache-from=rbernon/gcc-i686-linux-gnu:$(GCC_VERSION) \
+	  --cache-from=rbernon/gcc-x86_64-linux-gnu:$(GCC_VERSION) \
+	  --cache-from=rbernon/gcc-i686-w64-mingw32:$(GCC_VERSION) \
+	  --cache-from=rbernon/gcc-x86_64-w64-mingw32:$(GCC_VERSION) \
+	  --cache-from=rbernon/proton:$(STEAMRT_VERSION) \
+	  -t rbernon/proton:$(STEAMRT_VERSION) \
+	  -t rbernon/proton:latest \
 	  build
-push::
-	-docker push rbernon/proton-$(2):$(STEAMRT_VERSION)
-	-docker push rbernon/proton-$(2):latest
+push-proton::
+	-docker push rbernon/proton:latest
+push:: push-proton
 endef
 
 $(eval $(call create-proton-rules,i686,i386))
