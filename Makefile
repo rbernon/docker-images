@@ -38,28 +38,28 @@ MINGW_VERSION = 7.0.0
 RUST_VERSION = 1.44.1
 
 %.Dockerfile: %.Dockerfile.in
-	sed -re 's/@BASE_IMAGE@/$(BASE_IMAGE)/g' \
-	    -re 's/@ISL_VERSION@/$(ISL_VERSION)/g' \
-	    -re 's/@BINUTILS_VERSION@/$(BINUTILS_VERSION)/g' \
-	    -re 's/@GCC_VERSION@/$(GCC_VERSION)/g' \
-	    -re 's/@MINGW_VERSION@/$(MINGW_VERSION)/g' \
-	    -re 's/@RUST_VERSION@/$(RUST_VERSION)/g' \
+	sed -re 's!@BASE_IMAGE@!$(BASE_IMAGE)!g' \
+	    -re 's!@ISL_VERSION@!$(ISL_VERSION)!g' \
+	    -re 's!@BINUTILS_VERSION@!$(BINUTILS_VERSION)!g' \
+	    -re 's!@GCC_VERSION@!$(GCC_VERSION)!g' \
+	    -re 's!@MINGW_VERSION@!$(MINGW_VERSION)!g' \
+	    -re 's!@RUST_VERSION@!$(RUST_VERSION)!g' \
 	    $< >$@
 
 %-i686.Dockerfile: %.Dockerfile
-	sed -re 's/@ARCH@/i686/g' \
+	sed -re 's!@ARCH@!i686!g' \
 	    $< >$@
 
 %-x86_64.Dockerfile: %.Dockerfile
-	sed -re 's/@ARCH@/x86_64/g' \
+	sed -re 's!@ARCH@!x86_64!g' \
 	    $< >$@
 
 %-linux-gnu.Dockerfile: %.Dockerfile
-	sed -re 's/@TARGET@/linux-gnu/g' \
+	sed -re 's!@TARGET@!linux-gnu!g' \
 	    $< >$@
 
 %-w64-mingw32.Dockerfile: %.Dockerfile
-	sed -re 's/@TARGET@/w64-mingw32/g' \
+	sed -re 's!@TARGET@!w64-mingw32!g' \
 	    $< >$@
 
 define create-build-base-rules
