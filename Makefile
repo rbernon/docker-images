@@ -4,6 +4,8 @@ STEAMRT_VERSION ?= $(if $(wildcard $(STEAMRT_INSTALL)),$(shell cat $(STEAMRT_INS
 STEAMRT_URLBASE := http://repo.steampowered.com/steamrt-images-soldier/snapshots/$(STEAMRT_VERSION)
 STEAMRT_SDKBASE := com.valvesoftware.SteamRuntime.Sdk
 
+DOCKER_USER := rbernon
+
 $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-%: $(shell mkdir -p $(STEAMRT_VERSION))
 	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -qO $@
 $(STEAMRT_VERSION)/steam-runtime.tar.xz: $(shell mkdir -p $(STEAMRT_VERSION))
@@ -16,15 +18,15 @@ version:
 .PHONY: steamrt
 all: steamrt
 steamrt: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-soldier-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-soldier-sysroot.tar.gz
-	-docker pull rbernon/steamrt:$(STEAMRT_VERSION)
+	-docker pull $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
 	docker build -f $< \
-	  --cache-from=rbernon/steamrt:$(STEAMRT_VERSION) \
-	  -t rbernon/steamrt:$(STEAMRT_VERSION) \
-	  -t rbernon/steamrt:latest \
+	  --cache-from=$(DOCKER_USER)/steamrt:$(STEAMRT_VERSION) \
+	  -t $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION) \
+	  -t $(DOCKER_USER)/steamrt:latest \
 	  $(STEAMRT_VERSION)
 push-steamrt::
-	-docker push rbernon/steamrt:$(STEAMRT_VERSION)
-	-docker push rbernon/steamrt:latest
+	-docker push $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
+	-docker push $(DOCKER_USER)/steamrt:latest
 
 push:: push-steamrt
 
@@ -70,13 +72,13 @@ all build-base: build-base-$(1)
 build-base-$(1): BASE_IMAGE = $(BASE_IMAGE_$(1))
 build-base-$(1): build-base.Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull rbernon/build-base-$(1):latest
+	-docker pull $(DOCKER_USER)/build-base-$(1):latest
 	docker build -f $$< \
-	  --cache-from=rbernon/build-base-$(1):latest \
-	  -t rbernon/build-base-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
+	  -t $(DOCKER_USER)/build-base-$(1):latest \
 	  build
 push-build-base-$(1)::
-	docker push rbernon/build-base-$(1):latest
+	docker push $(DOCKER_USER)/build-base-$(1):latest
 push:: push-build-base-$(1)
 endef
 
@@ -88,17 +90,17 @@ define create-binutils-rules
 all binutils: binutils-$(1)-$(2)
 binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull rbernon/build-base-$(1):latest
-	-docker pull rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/build-base-$(1):latest
+	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	docker build -f $$< \
-	  --cache-from=rbernon/build-base-$(1):latest \
-	  --cache-from=rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
-	  -t rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
-	  -t rbernon/binutils-$(1)-$(2):latest \
+	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  -t $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  -t $(DOCKER_USER)/binutils-$(1)-$(2):latest \
 	  build
 push-binutils-$(1)-$(2)::
-	-docker push rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
-	-docker push rbernon/binutils-$(1)-$(2):latest
+	-docker push $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-docker push $(DOCKER_USER)/binutils-$(1)-$(2):latest
 push:: push-binutils-$(1)-$(2)
 endef
 
@@ -112,27 +114,27 @@ define create-mingw-rules
 all mingw: mingw-$(2)-$(1)
 mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull rbernon/build-base-$(1):latest
-	-docker pull rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull rbernon/mingw-headers-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-widl-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/build-base-$(1):latest
+	-docker pull $(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
 	docker build -f $$< \
-	  --cache-from=rbernon/build-base-$(1):latest \
-	  --cache-from=rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/mingw-headers-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-widl-$(1):$(MINGW_VERSION) \
-	  -t rbernon/mingw-$(2)-$(1):$(MINGW_VERSION) \
-	  -t rbernon/mingw-$(2)-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION) \
+	  -t $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
+	  -t $(DOCKER_USER)/mingw-$(2)-$(1):latest \
 	  build
 push-mingw-$(2)-$(1)::
-	-docker push rbernon/mingw-$(2)-$(1):$(MINGW_VERSION)
-	-docker push rbernon/mingw-$(2)-$(1):latest
+	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION)
+	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):latest
 push:: push-mingw-$(2)-$(1)
 endef
 
@@ -156,29 +158,29 @@ all gcc: gcc-$(1)-$(2)
 gcc-$(1)-$(2): TARGET_FLAGS = $(GCC_TARGET_FLAGS_$(2))
 gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull rbernon/build-base-$(1):latest
-	-docker pull rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION)
-	-docker pull rbernon/mingw-headers-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-widl-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/build-base-$(1):latest
+	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)
 	docker build -f $$< \
-	  --cache-from=rbernon/build-base-$(1):latest \
-	  --cache-from=rbernon/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/mingw-headers-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-widl-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
-	  -t rbernon/gcc-$(1)-$(2):$(GCC_VERSION) \
-	  -t rbernon/gcc-$(1)-$(2):latest \
+	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
+	  -t $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
+	  -t $(DOCKER_USER)/gcc-$(1)-$(2):latest \
 	  build
 push-gcc-$(1)-$(2)::
-	-docker push rbernon/gcc-$(1)-$(2):$(GCC_VERSION)
-	-docker push rbernon/gcc-$(1)-$(2):latest
+	-docker push $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)
+	-docker push $(DOCKER_USER)/gcc-$(1)-$(2):latest
 push:: push-gcc-$(1)-$(2)
 endef
 
@@ -187,8 +189,8 @@ $(eval $(call create-gcc-rules,x86_64,linux-gnu))
 $(eval $(call create-gcc-rules,i686,w64-mingw32))
 $(eval $(call create-gcc-rules,x86_64,w64-mingw32))
 
-PROTON_BASE_IMAGE_i686 = rbernon/steamrt:$(STEAMRT_VERSION)
-PROTON_BASE_IMAGE_x86_64 = rbernon/steamrt:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE_i686 = $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE_x86_64 = $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
 
 define create-proton-rules
 .PHONY: proton
@@ -196,55 +198,55 @@ all: proton
 proton: BASE_IMAGE = $(PROTON_BASE_IMAGE_$(1))
 proton: proton.Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull rbernon/build-base-i686:latest
-	-docker pull rbernon/build-base-x86_64:latest
-	-docker pull rbernon/binutils-i686-linux-gnu:$(BINUTILS_VERSION)
-	-docker pull rbernon/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION)
-	-docker pull rbernon/binutils-i686-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull rbernon/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull rbernon/mingw-headers-i686:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-headers-x86_64:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-gcc-i686:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-gcc-x86_64:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-crt-i686:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-crt-x86_64:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-pthreads-i686:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-pthreads-x86_64:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-widl-i686:$(MINGW_VERSION)
-	-docker pull rbernon/mingw-widl-x86_64:$(MINGW_VERSION)
-	-docker pull rbernon/gcc-i686-linux-gnu:$(GCC_VERSION)
-	-docker pull rbernon/gcc-x86_64-linux-gnu:$(GCC_VERSION)
-	-docker pull rbernon/gcc-i686-w64-mingw32:$(GCC_VERSION)
-	-docker pull rbernon/gcc-x86_64-w64-mingw32:$(GCC_VERSION)
-	-docker pull rbernon/proton:$(STEAMRT_VERSION)
-	-docker pull rbernon/proton:latest
+	-docker pull $(DOCKER_USER)/build-base-i686:latest
+	-docker pull $(DOCKER_USER)/build-base-x86_64:latest
+	-docker pull $(DOCKER_USER)/binutils-i686-linux-gnu:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/binutils-i686-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-headers-i686:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-headers-x86_64:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-gcc-i686:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-gcc-x86_64:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-crt-i686:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-crt-x86_64:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-pthreads-i686:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-pthreads-x86_64:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-widl-i686:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-widl-x86_64:$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-i686-linux-gnu:$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-x86_64-linux-gnu:$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-i686-w64-mingw32:$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-x86_64-w64-mingw32:$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
+	-docker pull $(DOCKER_USER)/proton:latest
 	docker build -f $$< \
-	  --cache-from=rbernon/builds-base-i686:latest \
-	  --cache-from=rbernon/builds-base-x86_64:latest \
-	  --cache-from=rbernon/binutils-i686-linux-gnu:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/binutils-i686-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/mingw-headers-i686:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-headers-x86_64:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-gcc-i686:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-gcc-x86_64:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-crt-i686:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-crt-x86_64:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-pthreads-i686:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-pthreads-x86_64:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-widl-i686:$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-widl-x86_64:$(MINGW_VERSION) \
-	  --cache-from=rbernon/gcc-i686-linux-gnu:$(GCC_VERSION) \
-	  --cache-from=rbernon/gcc-x86_64-linux-gnu:$(GCC_VERSION) \
-	  --cache-from=rbernon/gcc-i686-w64-mingw32:$(GCC_VERSION) \
-	  --cache-from=rbernon/gcc-x86_64-w64-mingw32:$(GCC_VERSION) \
-	  --cache-from=rbernon/proton:$(STEAMRT_VERSION) \
-	  -t rbernon/proton:$(STEAMRT_VERSION) \
-	  -t rbernon/proton:latest \
+	  --cache-from=$(DOCKER_USER)/builds-base-i686:latest \
+	  --cache-from=$(DOCKER_USER)/builds-base-x86_64:latest \
+	  --cache-from=$(DOCKER_USER)/binutils-i686-linux-gnu:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/binutils-i686-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-headers-i686:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-headers-x86_64:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-gcc-i686:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-gcc-x86_64:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-crt-i686:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-crt-x86_64:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-pthreads-i686:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-pthreads-x86_64:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-widl-i686:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-widl-x86_64:$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-i686-linux-gnu:$(GCC_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-x86_64-linux-gnu:$(GCC_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-i686-w64-mingw32:$(GCC_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-x86_64-w64-mingw32:$(GCC_VERSION) \
+	  --cache-from=$(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
+	  -t $(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
+	  -t $(DOCKER_USER)/proton:latest \
 	  build
 push-proton::
-	-docker push rbernon/proton:latest
+	-docker push $(DOCKER_USER)/proton:latest
 push:: push-proton
 endef
 
@@ -260,33 +262,33 @@ all wine: wine-$(1)
 wine-$(1): BASE_IMAGE = $(WINE_BASE_IMAGE_$(1))
 wine-$(1): wine-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull rbernon/build-base-$(1):latest
-	-docker pull rbernon/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION)
-	-docker pull rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull rbernon/mingw-headers-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-gcc-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-crt-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-pthreads-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/mingw-widl-$(1):$(MINGW_VERSION)
-	-docker pull rbernon/gcc-$(1)-linux-gnu:$(GCC_VERSION)
-	-docker pull rbernon/gcc-$(1)-w64-mingw32:$(GCC_VERSION)
-	-docker pull rbernon/wine-$(1):latest
+	-docker pull $(DOCKER_USER)/build-base-$(1):latest
+	-docker pull $(DOCKER_USER)/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-$(1)-linux-gnu:$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/gcc-$(1)-w64-mingw32:$(GCC_VERSION)
+	-docker pull $(DOCKER_USER)/wine-$(1):latest
 	docker build -f $$< \
-	  --cache-from=rbernon/builds-base-$(1):latest \
-	  --cache-from=rbernon/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=rbernon/mingw-headers-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-gcc-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-crt-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-pthreads-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/mingw-widl-$(1):$(MINGW_VERSION) \
-	  --cache-from=rbernon/gcc-$(1)-linux-gnu:$(GCC_VERSION) \
-	  --cache-from=rbernon/gcc-$(1)-w64-mingw32:$(GCC_VERSION) \
-	  --cache-from=rbernon/wine-$(1):latest \
-	  -t rbernon/wine-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/builds-base-$(1):latest \
+	  --cache-from=$(DOCKER_USER)/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-$(1)-linux-gnu:$(GCC_VERSION) \
+	  --cache-from=$(DOCKER_USER)/gcc-$(1)-w64-mingw32:$(GCC_VERSION) \
+	  --cache-from=$(DOCKER_USER)/wine-$(1):latest \
+	  -t $(DOCKER_USER)/wine-$(1):latest \
 	  build
 push-wine-$(1)::
-	-docker push rbernon/wine-$(1):latest
+	-docker push $(DOCKER_USER)/wine-$(1):latest
 push:: push-wine-$(1)
 endef
 
