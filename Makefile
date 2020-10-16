@@ -30,8 +30,11 @@ push-steamrt::
 
 push:: push-steamrt
 
-BASE_IMAGE_i686 = i386/debian:unstable
-BASE_IMAGE_x86_64 = debian:unstable
+# this is just for building toolchain, as we do static builds it should
+# not have any impact on the end result, but changing it will invalidate
+# docker caches, so we need something that don't change much
+BASE_IMAGE_i686 = i386/ubuntu:18.04
+BASE_IMAGE_x86_64 = ubuntu:18.04
 
 ISL_VERSION = 0.22.1
 BINUTILS_VERSION = 2.35
