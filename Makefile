@@ -96,7 +96,6 @@ binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 	-docker pull $(DOCKER_USER)/build-base-$(1):latest
 	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
 	  --cache-from=$(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
 	  -t $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
 	  -t $(DOCKER_USER)/binutils-$(1)-$(2):latest \
@@ -125,13 +124,7 @@ mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
 	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
 	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
-	  --cache-from=$(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION) \
+	  --cache-from=$(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
 	  -t $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
 	  -t $(DOCKER_USER)/mingw-$(2)-$(1):latest \
 	  build
@@ -170,13 +163,6 @@ gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
 	-docker pull $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)
 	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
-	  --cache-from=$(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION) \
 	  --cache-from=$(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
 	  -t $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
 	  -t $(DOCKER_USER)/gcc-$(1)-$(2):latest \
@@ -224,26 +210,6 @@ proton: proton.Dockerfile
 	-docker pull $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
 	-docker pull $(DOCKER_USER)/proton:latest
 	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/builds-base-i686:latest \
-	  --cache-from=$(DOCKER_USER)/builds-base-x86_64:latest \
-	  --cache-from=$(DOCKER_USER)/binutils-i686-linux-gnu:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/binutils-i686-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-headers-i686:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-headers-x86_64:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-gcc-i686:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-gcc-x86_64:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-crt-i686:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-crt-x86_64:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-pthreads-i686:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-pthreads-x86_64:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-widl-i686:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-widl-x86_64:$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/gcc-i686-linux-gnu:$(GCC_VERSION) \
-	  --cache-from=$(DOCKER_USER)/gcc-x86_64-linux-gnu:$(GCC_VERSION) \
-	  --cache-from=$(DOCKER_USER)/gcc-i686-w64-mingw32:$(GCC_VERSION) \
-	  --cache-from=$(DOCKER_USER)/gcc-x86_64-w64-mingw32:$(GCC_VERSION) \
 	  --cache-from=$(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
 	  -t $(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
 	  -t $(DOCKER_USER)/proton:latest \
@@ -277,16 +243,6 @@ wine-$(1): wine-$(1).Dockerfile
 	-docker pull $(DOCKER_USER)/gcc-$(1)-w64-mingw32:$(GCC_VERSION)
 	-docker pull $(DOCKER_USER)/wine-$(1):latest
 	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/builds-base-$(1):latest \
-	  --cache-from=$(DOCKER_USER)/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION) \
-	  --cache-from=$(DOCKER_USER)/gcc-$(1)-linux-gnu:$(GCC_VERSION) \
-	  --cache-from=$(DOCKER_USER)/gcc-$(1)-w64-mingw32:$(GCC_VERSION) \
 	  --cache-from=$(DOCKER_USER)/wine-$(1):latest \
 	  -t $(DOCKER_USER)/wine-$(1):latest \
 	  build
