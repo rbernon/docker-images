@@ -35,13 +35,13 @@ RUN apt-get update && apt-get install -y \
   libgsm1-dev \
   libgstreamer-plugins-base1.0-dev \
   libjpeg-dev \
+  libjxr-dev \
   libkrb5-dev \
   liblcms2-dev \
   libldap2-dev \
   libmpg123-dev \
   libncurses5-dev \
   libopenal-dev \
-  libopencl-clang-dev \
   libosmesa6-dev \
   libpcap-dev \
   libpcap0.8-dev \
@@ -52,7 +52,7 @@ RUN apt-get update && apt-get install -y \
   libssl-dev \
   libtiff-dev \
   libudev-dev \
-  libusb-dev \
+  libusb-1.0-0-dev \
   libv4l-dev \
   libvkd3d-dev \
   libvulkan-dev \
@@ -72,6 +72,7 @@ RUN apt-get update && apt-get install -y \
   libxt-dev \
   libxxf86dga-dev \
   libxxf86vm-dev \
+  opencl-dev \
   oss4-dev \
   pkg-config \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
