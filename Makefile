@@ -178,13 +178,11 @@ $(eval $(call create-gcc-rules,x86_64,linux-gnu))
 $(eval $(call create-gcc-rules,i686,w64-mingw32))
 $(eval $(call create-gcc-rules,x86_64,w64-mingw32))
 
-PROTON_BASE_IMAGE_i686 = $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
-PROTON_BASE_IMAGE_x86_64 = $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE = $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
 
-define create-proton-rules
 .PHONY: proton
 all: proton
-proton: BASE_IMAGE = $(PROTON_BASE_IMAGE_$(1))
+proton: BASE_IMAGE = $(PROTON_BASE_IMAGE)
 proton: proton.Dockerfile
 	rm -rf build; mkdir -p build
 	-docker pull $(DOCKER_USER)/build-base-i686:latest
@@ -209,18 +207,15 @@ proton: proton.Dockerfile
 	-docker pull $(DOCKER_USER)/gcc-x86_64-w64-mingw32:$(GCC_VERSION)
 	-docker pull $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
 	-docker pull $(DOCKER_USER)/proton:latest
-	docker build -f $$< \
+	docker build -f $< \
 	  --cache-from=$(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
 	  -t $(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
 	  -t $(DOCKER_USER)/proton:latest \
 	  build
 push-proton::
+	-docker push $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
 	-docker push $(DOCKER_USER)/proton:latest
 push:: push-proton
-endef
-
-$(eval $(call create-proton-rules,i686,i386))
-$(eval $(call create-proton-rules,x86_64,amd64))
 
 WINE_BASE_IMAGE_i686 = i386/debian:unstable
 WINE_BASE_IMAGE_x86_64 = debian:unstable
