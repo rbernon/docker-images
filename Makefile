@@ -1,4 +1,4 @@
-STEAMRT_DEFAULT := 0.20201007.0
+STEAMRT_DEFAULT := 0.20201022.1
 STEAMRT_INSTALL := $(HOME)/.steam/root/ubuntu12_32/steam-runtime
 STEAMRT_VERSION ?= $(if $(wildcard $(STEAMRT_INSTALL)),$(shell cat $(STEAMRT_INSTALL)/version.txt | tr '_' ' ' | awk '{print $$2}'),$(STEAMRT_DEFAULT))
 STEAMRT_URLBASE := http://repo.steampowered.com/steamrt-images-soldier/snapshots/$(STEAMRT_VERSION)
