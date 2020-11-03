@@ -51,20 +51,20 @@ RUST_VERSION = 1.44.1
 	    -re 's!@RUST_VERSION@!$(RUST_VERSION)!g' \
 	    $< >$@
 
-%-i686.Dockerfile: %.Dockerfile
+%-i686.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!i686!g' \
 	    $< >$@
 
-%-x86_64.Dockerfile: %.Dockerfile
+%-x86_64.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!x86_64!g' \
 	    $< >$@
 
-%-linux-gnu.Dockerfile: %.Dockerfile
+%-linux-gnu.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@TARGET@!linux-gnu!g' \
 	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
 
-%-w64-mingw32.Dockerfile: %.Dockerfile
+%-w64-mingw32.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@TARGET@!w64-mingw32!g' \
 	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
@@ -73,7 +73,7 @@ define create-build-base-rules
 .PHONY: build-base-$(1)
 all build-base: build-base-$(1)
 build-base-$(1): BASE_IMAGE = $(BASE_IMAGE_$(1))
-build-base-$(1): build-base.Dockerfile
+build-base-$(1): build-base-$(1).Dockerfile
 	rm -rf build; mkdir -p build
 	-docker pull $(DOCKER_USER)/build-base-$(1):latest
 	docker build -f $$< \
@@ -93,7 +93,6 @@ define create-binutils-rules
 all binutils: binutils-$(1)-$(2)
 binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/build-base-$(1):latest
 	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	docker build -f $$< \
 	  --cache-from=$(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
@@ -116,13 +115,7 @@ define create-mingw-rules
 all mingw: mingw-$(2)-$(1)
 mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/build-base-$(1):latest
-	-docker pull $(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
+	-docker pull $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION)
 	docker build -f $$< \
 	  --cache-from=$(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
 	  -t $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
@@ -154,13 +147,6 @@ all gcc: gcc-$(1)-$(2)
 gcc-$(1)-$(2): TARGET_FLAGS = $(GCC_TARGET_FLAGS_$(2))
 gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/build-base-$(1):latest
-	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
 	-docker pull $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)
 	docker build -f $$< \
 	  --cache-from=$(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
@@ -185,28 +171,7 @@ all: proton
 proton: BASE_IMAGE = $(PROTON_BASE_IMAGE)
 proton: proton.Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/build-base-i686:latest
-	-docker pull $(DOCKER_USER)/build-base-x86_64:latest
-	-docker pull $(DOCKER_USER)/binutils-i686-linux-gnu:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/binutils-x86_64-linux-gnu:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/binutils-i686-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/binutils-x86_64-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-headers-i686:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-headers-x86_64:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-gcc-i686:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-gcc-x86_64:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-crt-i686:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-crt-x86_64:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-pthreads-i686:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-pthreads-x86_64:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-widl-i686:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-widl-x86_64:$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/gcc-i686-linux-gnu:$(GCC_VERSION)
-	-docker pull $(DOCKER_USER)/gcc-x86_64-linux-gnu:$(GCC_VERSION)
-	-docker pull $(DOCKER_USER)/gcc-i686-w64-mingw32:$(GCC_VERSION)
-	-docker pull $(DOCKER_USER)/gcc-x86_64-w64-mingw32:$(GCC_VERSION)
 	-docker pull $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
-	-docker pull $(DOCKER_USER)/proton:latest
 	docker build -f $< \
 	  --cache-from=$(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
 	  -t $(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
