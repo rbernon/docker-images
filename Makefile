@@ -1,15 +1,7 @@
-STEAMRT_DEFAULT := 0.20201022.1
-STEAMRT_INSTALL := $(HOME)/.steam/root/ubuntu12_32/steam-runtime
-STEAMRT_VERSION ?= $(if $(wildcard $(STEAMRT_INSTALL)),$(shell cat $(STEAMRT_INSTALL)/version.txt | tr '_' ' ' | awk '{print $$2}'),$(STEAMRT_DEFAULT))
-STEAMRT_URLBASE := http://repo.steampowered.com/steamrt-images-soldier/snapshots/$(STEAMRT_VERSION)
-STEAMRT_SDKBASE := com.valvesoftware.SteamRuntime.Sdk
+STEAMRT_VERSION = 0.20201022.1
+STEAMRT_URLBASE = registry.gitlab.steamos.cloud
 
 DOCKER_USER := rbernon
-
-$(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-%: $(shell mkdir -p $(STEAMRT_VERSION))
-	wget $(STEAMRT_URLBASE)/$(STEAMRT_SDKBASE)-$* -qO $@
-$(STEAMRT_VERSION)/steam-runtime.tar.xz: $(shell mkdir -p $(STEAMRT_VERSION))
-	wget $(STEAMRT_URLBASE)/steam-runtime.tar.xz -qO $@
 
 .PHONY: version
 version:
@@ -17,13 +9,10 @@ version:
 
 .PHONY: steamrt
 all: steamrt
-steamrt: $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-soldier-sysroot.Dockerfile $(STEAMRT_VERSION)/$(STEAMRT_SDKBASE)-amd64,i386-soldier-sysroot.tar.gz
-	-docker pull $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
-	docker build -f $< \
-	  --cache-from=$(DOCKER_USER)/steamrt:$(STEAMRT_VERSION) \
-	  -t $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION) \
-	  -t $(DOCKER_USER)/steamrt:latest \
-	  $(STEAMRT_VERSION)
+steamrt:
+	-docker pull $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION)
+	docker tag $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION) $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
+	docker tag $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION) $(DOCKER_USER)/steamrt:latest
 push-steamrt::
 	-docker push $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
 	-docker push $(DOCKER_USER)/steamrt:latest
