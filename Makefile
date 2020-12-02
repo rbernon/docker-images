@@ -1,4 +1,4 @@
-STEAMRT_VERSION = 0.20201022.1
+STEAMRT_VERSION = 0.20201124.0
 STEAMRT_URLBASE = registry.gitlab.steamos.cloud
 
 DOCKER_USER := rbernon
