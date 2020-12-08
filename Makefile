@@ -202,3 +202,23 @@ endef
 
 $(eval $(call create-wine-rules,i686))
 $(eval $(call create-wine-rules,x86_64))
+
+define create-devel-rules
+.PHONY: devel-$(1)
+all devel: devel-$(1)
+devel-$(1): BASE_IMAGE = $(DOCKER_USER)/wine-$(1):latest
+devel-$(1): devel-$(1).Dockerfile
+	rm -rf build; mkdir -p build
+	-docker pull $(DOCKER_USER)/wine-$(1):latest
+	-docker pull $(DOCKER_USER)/devel-$(1):latest
+	docker build -f $$< \
+	  --cache-from=$(DOCKER_USER)/devel-$(1):latest \
+	  -t $(DOCKER_USER)/devel-$(1):latest \
+	  build
+push-devel-$(1)::
+	-docker push $(DOCKER_USER)/devel-$(1):latest
+push:: push-devel-$(1)
+endef
+
+$(eval $(call create-devel-rules,i686))
+$(eval $(call create-devel-rules,x86_64))

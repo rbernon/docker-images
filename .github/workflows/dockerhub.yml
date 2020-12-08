@@ -309,3 +309,29 @@ jobs:
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
         run: make push-proton
+
+  devel-i686:
+    needs: [wine-i686]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make devel-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-devel-i686
+
+  devel-x86_64:
+    needs: [wine-x86_64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make devel-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-devel-x86_64
