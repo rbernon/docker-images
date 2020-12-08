@@ -30,6 +30,8 @@ BINUTILS_VERSION = 2.35
 GCC_VERSION = 9.3.0
 MINGW_VERSION = 8.0.0
 RUST_VERSION = 1.44.1
+LLVM_VERSION = 11.0.0
+LLVM_MINGW_VERSION = 11.0
 
 %.Dockerfile: %.Dockerfile.in
 	sed -re 's!@DOCKER_USER@!$(DOCKER_USER)!g' \
@@ -39,14 +41,20 @@ RUST_VERSION = 1.44.1
 	    -re 's!@GCC_VERSION@!$(GCC_VERSION)!g' \
 	    -re 's!@MINGW_VERSION@!$(MINGW_VERSION)!g' \
 	    -re 's!@RUST_VERSION@!$(RUST_VERSION)!g' \
+	    -re 's!@LLVM_VERSION@!$(LLVM_VERSION)!g' \
+	    -re 's!@LLVM_MINGW_VERSION@!$(LLVM_MINGW_VERSION)!g' \
 	    $< >$@
 
 %-i686.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!i686!g' \
+	    -re 's!@ARCH_BASE@!i386!g' \
+	    -re 's!@SIZEOF_VOIDP@!4!g' \
 	    $< >$@
 
 %-x86_64.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!x86_64!g' \
+	    -re 's!@ARCH_BASE@!x86_64!g' \
+	    -re 's!@SIZEOF_VOIDP@!8!g' \
 	    $< >$@
 
 %-linux-gnu.Dockerfile.in: %.Dockerfile.in
@@ -100,6 +108,27 @@ $(eval $(call create-binutils-rules,i686,w64-mingw32))
 $(eval $(call create-binutils-rules,i686,linux-gnu))
 $(eval $(call create-binutils-rules,x86_64,w64-mingw32))
 $(eval $(call create-binutils-rules,x86_64,linux-gnu))
+
+define create-mingw-llvm-rules
+.PHONY: mingw-$(2)-$(1)
+all llvm: mingw-$(2)-$(1)
+mingw-$(2)-$(1): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
+mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
+	rm -rf build; mkdir -p build
+	-docker pull $(DOCKER_USER)/mingw-llvm-$(1):$(LLVM_VERSION)
+	docker build -f $$< \
+	  --cache-from=$(DOCKER_USER)/mingw-$(2)-$(1):$(LLVM_VERSION) \
+	  -t $(DOCKER_USER)/mingw-$(2)-$(1):$(LLVM_VERSION) \
+	  -t $(DOCKER_USER)/mingw-$(2)-$(1):latest \
+	  build
+push-mingw-$(2)-$(1)::
+	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):$(LLVM_VERSION)
+	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):latest
+push:: push-mingw-$(2)-$(1)
+endef
+
+$(eval $(call create-mingw-llvm-rules,i686,llvm))
+$(eval $(call create-mingw-llvm-rules,x86_64,llvm))
 
 define create-mingw-rules
 .PHONY: mingw-$(2)-$(1)

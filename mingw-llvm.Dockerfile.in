@@ -1,0 +1,71 @@
+FROM @DOCKER_USER@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @BASE_IMAGE@ AS build
+RUN apt-get update && apt-get install -y \
+  cmake \
+  ninja-build \
+  python \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /var/lib/apt/lists/*
+
+# From llvm-mingw:
+# Copyright (c) 2018 Martin Storsjo
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
+&& cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
+&& cmake -Bbuild -Hllvm -GNinja \
+    -DCMAKE_INSTALL_PREFIX="/usr" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=gold -Wl,--whole-archive -lpthread -Wl,--no-whole-archive" \
+    -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold -Wl,--whole-archive -lpthread -Wl,--no-whole-archive" \
+    -DLLVM_BUILD_STATIC=ON \
+    -DLLVM_ENABLE_ASSERTIONS=OFF \
+    -DLLVM_ENABLE_PROJECTS="clang;lld" \
+    -DLLVM_TARGETS_TO_BUILD="X86" \
+    -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
+    -DLLVM_TOOLCHAIN_TOOLS="llvm-ar;llvm-ranlib;llvm-objdump;llvm-rc;llvm-cvtres;llvm-nm;llvm-strings;llvm-readobj;llvm-dlltool;llvm-pdbutil;llvm-objcopy;llvm-strip;llvm-cov;llvm-profdata;llvm-addr2line;llvm-symbolizer" \
+    -DLLVM_HOST_TRIPLE=@ARCH@-linux-gnu \
+    -DLLVM_STATIC_LINK_CXX_STDLIB=ON \
+    -DLIBCLANG_BUILD_STATIC=ON \
+&& DESTDIR=/opt ninja -C build install/strip \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /tmp/llvm-project-llvmorg-@LLVM_VERSION@
+
+RUN wget -qO- https://github.com/mstorsjo/llvm-mingw/archive/llvm-@LLVM_MINGW_VERSION@.tar.gz | tar xzf - -C /tmp \
+&& cd /tmp/llvm-mingw-llvm-@LLVM_MINGW_VERSION@ \
+&& ./install-wrappers.sh /opt/usr \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /tmp/llvm-mingw-llvm-@LLVM_MINGW_VERSION@
+
+COPY --from=mingw-headers /opt/usr /usr
+RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
+&& cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
+&& ln -sf /usr/@ARCH@-w64-mingw32 /usr/@ARCH_BASE@-w64-mingw32 \
+&& PATH=/opt/usr/bin:$PATH CFLAGS=-I/usr/@ARCH@-w64-mingw32/include \
+   cmake -Bbuild -Hcompiler-rt/lib/builtins -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/@LLVM_VERSION@ \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CROSSCOMPILING=TRUE \
+    -DCMAKE_SYSTEM_NAME=Windows \
+    -DCMAKE_SIZEOF_VOID_P=@SIZEOF_VOIDP@ \
+    -DCMAKE_C_COMPILER=@ARCH@-w64-mingw32-clang \
+    -DCMAKE_C_COMPILER_WORKS=TRUE \
+    -DCMAKE_C_COMPILER_TARGET=@ARCH_BASE@-windows-gnu \
+    -DCMAKE_AR=/opt/usr/bin/llvm-ar \
+    -DCMAKE_RANLIB=/opt/usr/bin/llvm-ranlib \
+    -DCOMPILER_RT_DEFAULT_TARGET_ONLY=TRUE \
+    -DCOMPILER_RT_USE_BUILTINS_LIBRARY=TRUE \
+&& DESTDIR=/opt ninja -C build install \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /tmp/llvm-project-llvmorg-@LLVM_VERSION@

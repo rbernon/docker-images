@@ -193,6 +193,32 @@ jobs:
       - name: Push
         run: make push-mingw-gcc-x86_64
 
+  mingw-llvm-i686:
+    needs: mingw-headers-llvm-i686
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-llvm-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-llvm-i686
+
+  mingw-llvm-x86_64:
+    needs: mingw-headers-llvm-x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-llvm-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-llvm-x86_64
+
   mingw-crt-i686:
     needs: mingw-gcc-i686
     runs-on: ubuntu-latest
