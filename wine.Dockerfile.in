@@ -1,11 +1,11 @@
-FROM rbernon/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
-FROM rbernon/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils-mingw
-FROM rbernon/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
-FROM rbernon/mingw-crt-@ARCH@:@MINGW_VERSION@ AS mingw-crt
-FROM rbernon/mingw-pthreads-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
-FROM rbernon/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
-FROM rbernon/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
-FROM rbernon/gcc-@ARCH@-w64-mingw32:@GCC_VERSION@ AS gcc-mingw
+FROM @DOCKER_USER@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
+FROM @DOCKER_USER@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils-mingw
+FROM @DOCKER_USER@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @DOCKER_USER@/mingw-crt-@ARCH@:@MINGW_VERSION@ AS mingw-crt
+FROM @DOCKER_USER@/mingw-pthreads-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
+FROM @DOCKER_USER@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
+FROM @DOCKER_USER@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
+FROM @DOCKER_USER@/gcc-@ARCH@-w64-mingw32:@GCC_VERSION@ AS gcc-mingw
 
 FROM @BASE_IMAGE@ AS base
 RUN apt-get update && apt-get install -y \

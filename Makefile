@@ -32,7 +32,8 @@ MINGW_VERSION = 8.0.0
 RUST_VERSION = 1.44.1
 
 %.Dockerfile: %.Dockerfile.in
-	sed -re 's!@BASE_IMAGE@!$(BASE_IMAGE)!g' \
+	sed -re 's!@DOCKER_USER@!$(DOCKER_USER)!g' \
+	    -re 's!@BASE_IMAGE@!$(BASE_IMAGE)!g' \
 	    -re 's!@ISL_VERSION@!$(ISL_VERSION)!g' \
 	    -re 's!@BINUTILS_VERSION@!$(BINUTILS_VERSION)!g' \
 	    -re 's!@GCC_VERSION@!$(GCC_VERSION)!g' \
@@ -80,6 +81,7 @@ $(eval $(call create-build-base-rules,x86_64))
 define create-binutils-rules
 .PHONY: binutils-$(1)-$(2)
 all binutils: binutils-$(1)-$(2)
+binutils-$(1)-$(2): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
 binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
 	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
@@ -102,6 +104,7 @@ $(eval $(call create-binutils-rules,x86_64,linux-gnu))
 define create-mingw-rules
 .PHONY: mingw-$(2)-$(1)
 all mingw: mingw-$(2)-$(1)
+mingw-$(2)-$(1): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
 mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
 	-docker pull $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION)
@@ -134,6 +137,7 @@ define create-gcc-rules
 .PHONY: gcc-$(1)-$(2)
 all gcc: gcc-$(1)-$(2)
 gcc-$(1)-$(2): TARGET_FLAGS = $(GCC_TARGET_FLAGS_$(2))
+gcc-$(1)-$(2): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
 gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
 	-docker pull $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)

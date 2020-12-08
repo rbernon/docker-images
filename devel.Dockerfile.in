@@ -1,4 +1,4 @@
-FROM @BASE_IMAGE@ AS base
+FROM @BASE_IMAGE@ AS build
 RUN apt-get update && apt-get install -y \
   cmake \
   libdrm-dev \
