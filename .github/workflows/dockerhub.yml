@@ -245,6 +245,32 @@ jobs:
       - name: Push
         run: make push-mingw-crt-x86_64
 
+  mingw-crt-llvm-i686:
+    needs: mingw-llvm-i686
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-crt-llvm-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-crt-llvm-i686
+
+  mingw-crt-llvm-x86_64:
+    needs: mingw-llvm-x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-crt-llvm-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-crt-llvm-x86_64
+
   mingw-pthreads-i686:
     needs: mingw-crt-i686
     runs-on: ubuntu-latest
@@ -270,6 +296,32 @@ jobs:
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
         run: make push-mingw-pthreads-x86_64
+
+  mingw-pthreads-llvm-i686:
+    needs: mingw-crt-llvm-i686
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-pthreads-llvm-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-pthreads-llvm-i686
+
+  mingw-pthreads-llvm-x86_64:
+    needs: mingw-crt-llvm-x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-pthreads-llvm-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-pthreads-llvm-x86_64
 
   gcc-i686-linux-gnu:
     needs: [binutils-i686-linux-gnu, mingw-pthreads-i686]
