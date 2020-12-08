@@ -272,7 +272,7 @@ jobs:
         run: make push-gcc-x86_64-w64-mingw32
 
   wine-i686:
-    needs: [gcc-i686-linux-gnu, gcc-i686-w64-mingw32]
+    needs: [gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -285,7 +285,7 @@ jobs:
         run: make push-wine-i686
 
   wine-x86_64:
-    needs: [gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32]
+    needs: [gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -298,7 +298,7 @@ jobs:
         run: make push-wine-x86_64
 
   proton:
-    needs: [gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, gcc-i686-linux-gnu, gcc-i686-w64-mingw32]
+    needs: [steamrt, gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
