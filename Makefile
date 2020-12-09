@@ -130,6 +130,9 @@ $(eval $(call create-mingw-rules,x86_64,crt))
 $(eval $(call create-mingw-rules,x86_64,pthreads))
 $(eval $(call create-mingw-rules,x86_64,widl))
 
+$(eval $(call create-mingw-rules,i686,headers-llvm))
+$(eval $(call create-mingw-rules,x86_64,headers-llvm))
+
 GCC_TARGET_FLAGS_w64-mingw32 = --disable-shared
 GCC_TARGET_FLAGS_linux-gnu =
 
