@@ -131,6 +131,8 @@ $(eval $(call create-mingw-llvm-rules,i686,llvm))
 $(eval $(call create-mingw-llvm-rules,x86_64,llvm))
 $(eval $(call create-mingw-llvm-rules,i686,libcxx))
 $(eval $(call create-mingw-llvm-rules,x86_64,libcxx))
+$(eval $(call create-mingw-llvm-rules,i686,compiler-rt))
+$(eval $(call create-mingw-llvm-rules,x86_64,compiler-rt))
 
 define create-mingw-rules
 .PHONY: mingw-$(2)-$(1)
