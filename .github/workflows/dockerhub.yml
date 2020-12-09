@@ -323,6 +323,32 @@ jobs:
       - name: Push
         run: make push-mingw-pthreads-llvm-x86_64
 
+  mingw-libcxx-i686:
+    needs: mingw-pthreads-llvm-i686
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-libcxx-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-libcxx-i686
+
+  mingw-libcxx-x86_64:
+    needs: mingw-pthreads-llvm-x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make mingw-libcxx-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-mingw-libcxx-x86_64
+
   gcc-i686-linux-gnu:
     needs: [binutils-i686-linux-gnu, mingw-pthreads-i686]
     runs-on: ubuntu-latest
