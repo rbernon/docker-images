@@ -184,16 +184,6 @@ all wine: wine-$(1)
 wine-$(1): BASE_IMAGE = $(WINE_BASE_IMAGE_$(1))
 wine-$(1): wine-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/build-base-$(1):latest
-	-docker pull $(DOCKER_USER)/binutils-$(1)-linux-gnu:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/binutils-$(1)-w64-mingw32:$(BINUTILS_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-headers-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-gcc-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-crt-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-pthreads-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/mingw-widl-$(1):$(MINGW_VERSION)
-	-docker pull $(DOCKER_USER)/gcc-$(1)-linux-gnu:$(GCC_VERSION)
-	-docker pull $(DOCKER_USER)/gcc-$(1)-w64-mingw32:$(GCC_VERSION)
 	-docker pull $(DOCKER_USER)/wine-$(1):latest
 	docker build -f $$< \
 	  --cache-from=$(DOCKER_USER)/wine-$(1):latest \
