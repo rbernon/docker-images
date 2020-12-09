@@ -1,0 +1,98 @@
+FROM @DOCKER_USER@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
+FROM @DOCKER_USER@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
+FROM @DOCKER_USER@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @DOCKER_USER@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt-llvm
+FROM @DOCKER_USER@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads-llvm
+FROM @DOCKER_USER@/mingw-libcxx-@ARCH@:@LLVM_VERSION@ AS mingw-libcxx
+FROM @DOCKER_USER@/mingw-compiler-rt-@ARCH@:@LLVM_VERSION@ AS mingw-compiler-rt
+FROM @DOCKER_USER@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
+FROM @DOCKER_USER@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
+
+FROM @BASE_IMAGE@ AS base
+RUN apt-get update && apt-get install -y \
+  autoconf \
+  bison \
+  ccache \
+  curl \
+  flex \
+  gettext \
+  libisl22 \
+  libmpc3 \
+  libmpfr6 \
+  libasound2-dev \
+  libcapi20-dev \
+  libcups2-dev \
+  libdbus-1-dev \
+  libfaudio-dev \
+  libfontconfig1-dev \
+  libfreetype6-dev \
+  libgettextpo-dev \
+  libgl1-mesa-dev \
+  libglu1-mesa-dev \
+  libgmp-dev \
+  libgnutls28-dev \
+  libgphoto2-dev \
+  libgsm1-dev \
+  libgsm1-dev \
+  libgstreamer-plugins-base1.0-dev \
+  libjpeg-dev \
+  libjxr-dev \
+  libkrb5-dev \
+  liblcms2-dev \
+  libldap2-dev \
+  libmpg123-dev \
+  libncurses5-dev \
+  libopenal-dev \
+  libosmesa6-dev \
+  libpcap-dev \
+  libpcap0.8-dev \
+  libpng-dev \
+  libpulse-dev \
+  libsane-dev \
+  libsdl2-dev \
+  libssl-dev \
+  libtiff-dev \
+  libudev-dev \
+  libusb-1.0-0-dev \
+  libv4l-dev \
+  libvkd3d-dev \
+  libvulkan-dev \
+  libx11-dev \
+  libxcomposite-dev \
+  libxcursor-dev \
+  libxext-dev \
+  libxfixes-dev \
+  libxi-dev \
+  libxinerama-dev \
+  libxkbfile-dev \
+  libxml2-dev \
+  libxmu-dev \
+  libxrandr-dev \
+  libxrender-dev \
+  libxslt1-dev \
+  libxt-dev \
+  libxxf86dga-dev \
+  libxxf86vm-dev \
+  opencl-dev \
+  oss4-dev \
+  pkg-config \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /var/lib/apt/lists/*
+
+COPY --from=binutils-linux      /opt/usr /usr
+COPY --from=mingw-llvm          /opt/usr /usr
+COPY --from=mingw-headers       /opt/usr /usr
+COPY --from=mingw-crt-llvm      /opt/usr /usr
+COPY --from=mingw-pthreads-llvm /opt/usr /usr
+COPY --from=mingw-libcxx        /opt/usr /usr
+COPY --from=mingw-compiler-rt   /opt/usr /usr
+COPY --from=mingw-widl          /opt/usr /usr
+COPY --from=gcc-linux           /opt/usr /usr
+
+RUN bash -c 'mkdir -p /usr/lib/ccache && ls /usr/bin/{,*-}{cc,c++,gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'
+ENV PATH=/usr/lib/ccache:$PATH
+ENV CC=@ARCH@-linux-gnu-gcc
+ENV CXX=@ARCH@-linux-gnu-g++
+ENV CROSSCC=@ARCH@-w64-mingw32-gcc
+ENV CROSSCXX=@ARCH@-w64-mingw32-g++
+CMD ["/bin/bash"]

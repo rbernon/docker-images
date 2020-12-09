@@ -217,6 +217,8 @@ push:: push-proton
 
 WINE_BASE_IMAGE_i686 = i386/debian:unstable
 WINE_BASE_IMAGE_x86_64 = debian:unstable
+WINE_BASE_IMAGE_llvm-i686 = i386/debian:unstable
+WINE_BASE_IMAGE_llvm-x86_64 = debian:unstable
 
 define create-wine-rules
 .PHONY: wine-$(1)
@@ -236,6 +238,8 @@ endef
 
 $(eval $(call create-wine-rules,i686))
 $(eval $(call create-wine-rules,x86_64))
+$(eval $(call create-wine-rules,llvm-i686))
+$(eval $(call create-wine-rules,llvm-x86_64))
 
 define create-devel-rules
 .PHONY: devel-$(1)
