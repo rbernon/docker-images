@@ -88,6 +88,11 @@ COPY --from=gcc-linux      /opt/usr /usr
 COPY --from=gcc-mingw      /opt/usr /usr
 
 RUN bash -c 'mkdir -p /usr/lib/ccache && ls /usr/bin/{,*-}{cc,c++,gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'
+
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-@ARCH_TINI@ /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "-s", "-g", "--"]
+
 ENV PATH=/usr/lib/ccache:$PATH
 ENV CC=@ARCH@-linux-gnu-gcc
 ENV CXX=@ARCH@-linux-gnu-g++

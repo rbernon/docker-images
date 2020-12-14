@@ -48,12 +48,14 @@ LLVM_MINGW_VERSION = 11.0
 %-i686.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!i686!g' \
 	    -re 's!@ARCH_BASE@!i386!g' \
+	    -re 's!@ARCH_TINI@!i386!g' \
 	    -re 's!@SIZEOF_VOIDP@!4!g' \
 	    $< >$@
 
 %-x86_64.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!x86_64!g' \
 	    -re 's!@ARCH_BASE@!x86_64!g' \
+	    -re 's!@ARCH_TINI@!amd64!g' \
 	    -re 's!@SIZEOF_VOIDP@!8!g' \
 	    $< >$@
 
