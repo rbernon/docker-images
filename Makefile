@@ -1,7 +1,10 @@
-STEAMRT_VERSION = 0.20201124.0
+STEAMRT_VERSION = 0.20201210.0
 STEAMRT_URLBASE = registry.gitlab.steamos.cloud
 
-DOCKER_USER := rbernon
+PROTONSDK_URLBASE = rbernon
+PROTONSDK_VERSION = $(STEAMRT_VERSION)-0
+
+DOCKER = docker
 
 .PHONY: version
 version:
@@ -10,12 +13,12 @@ version:
 .PHONY: steamrt
 all: steamrt
 steamrt:
-	-docker pull $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION)
-	docker tag $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION) $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
-	docker tag $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION) $(DOCKER_USER)/steamrt:latest
+	-$(DOCKER) pull $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION)
+	docker tag $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION) $(PROTONSDK_URLBASE)/steamrt:$(STEAMRT_VERSION)
+	docker tag $(STEAMRT_URLBASE)/steamrt/soldier/sdk:$(STEAMRT_VERSION) $(PROTONSDK_URLBASE)/steamrt:latest
 push-steamrt::
-	-docker push $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
-	-docker push $(DOCKER_USER)/steamrt:latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/steamrt:$(STEAMRT_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/steamrt:latest
 
 push:: push-steamrt
 
@@ -25,7 +28,6 @@ push:: push-steamrt
 BASE_IMAGE_i686 = i386/ubuntu:18.04
 BASE_IMAGE_x86_64 = ubuntu:18.04
 
-ISL_VERSION = 0.22.1
 BINUTILS_VERSION = 2.35
 GCC_VERSION = 9.3.0
 MINGW_VERSION = 8.0.0
@@ -34,9 +36,8 @@ LLVM_VERSION = 11.0.0
 LLVM_MINGW_VERSION = 11.0
 
 %.Dockerfile: %.Dockerfile.in
-	sed -re 's!@DOCKER_USER@!$(DOCKER_USER)!g' \
+	sed -re 's!@PROTONSDK_URLBASE@!$(PROTONSDK_URLBASE)!g' \
 	    -re 's!@BASE_IMAGE@!$(BASE_IMAGE)!g' \
-	    -re 's!@ISL_VERSION@!$(ISL_VERSION)!g' \
 	    -re 's!@BINUTILS_VERSION@!$(BINUTILS_VERSION)!g' \
 	    -re 's!@GCC_VERSION@!$(GCC_VERSION)!g' \
 	    -re 's!@MINGW_VERSION@!$(MINGW_VERSION)!g' \
@@ -75,13 +76,13 @@ all build-base: build-base-$(1)
 build-base-$(1): BASE_IMAGE = $(BASE_IMAGE_$(1))
 build-base-$(1): build-base-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/build-base-$(1):latest
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/build-base-$(1):latest \
-	  -t $(DOCKER_USER)/build-base-$(1):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/build-base-$(1):latest
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/build-base-$(1):latest \
+	  -t $(PROTONSDK_URLBASE)/build-base-$(1):latest \
 	  build
 push-build-base-$(1)::
-	docker push $(DOCKER_USER)/build-base-$(1):latest
+	$(DOCKER) push $(PROTONSDK_URLBASE)/build-base-$(1):latest
 push:: push-build-base-$(1)
 endef
 
@@ -91,18 +92,18 @@ $(eval $(call create-build-base-rules,x86_64))
 define create-binutils-rules
 .PHONY: binutils-$(1)-$(2)
 all binutils: binutils-$(1)-$(2)
-binutils-$(1)-$(2): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
+binutils-$(1)-$(2): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
 binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
-	  -t $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
-	  -t $(DOCKER_USER)/binutils-$(1)-$(2):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):latest \
 	  build
 push-binutils-$(1)-$(2)::
-	-docker push $(DOCKER_USER)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
-	-docker push $(DOCKER_USER)/binutils-$(1)-$(2):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):latest
 push:: push-binutils-$(1)-$(2)
 endef
 
@@ -114,18 +115,18 @@ $(eval $(call create-binutils-rules,x86_64,linux-gnu))
 define create-mingw-llvm-rules
 .PHONY: mingw-$(2)-$(1)
 all llvm: mingw-$(2)-$(1)
-mingw-$(2)-$(1): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
+mingw-$(2)-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
 mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/mingw-llvm-$(1):$(LLVM_VERSION)
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/mingw-$(2)-$(1):$(LLVM_VERSION) \
-	  -t $(DOCKER_USER)/mingw-$(2)-$(1):$(LLVM_VERSION) \
-	  -t $(DOCKER_USER)/mingw-$(2)-$(1):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/mingw-llvm-$(1):$(LLVM_VERSION)
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest \
 	  build
 push-mingw-$(2)-$(1)::
-	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):$(LLVM_VERSION)
-	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
 push:: push-mingw-$(2)-$(1)
 endef
 
@@ -139,18 +140,18 @@ $(eval $(call create-mingw-llvm-rules,x86_64,compiler-rt))
 define create-mingw-rules
 .PHONY: mingw-$(2)-$(1)
 all mingw: mingw-$(2)-$(1)
-mingw-$(2)-$(1): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
+mingw-$(2)-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
 mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION)
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
-	  -t $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION) \
-	  -t $(DOCKER_USER)/mingw-$(2)-$(1):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest \
 	  build
 push-mingw-$(2)-$(1)::
-	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):$(MINGW_VERSION)
-	-docker push $(DOCKER_USER)/mingw-$(2)-$(1):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
 push:: push-mingw-$(2)-$(1)
 endef
 
@@ -179,18 +180,18 @@ define create-gcc-rules
 .PHONY: gcc-$(1)-$(2)
 all gcc: gcc-$(1)-$(2)
 gcc-$(1)-$(2): TARGET_FLAGS = $(GCC_TARGET_FLAGS_$(2))
-gcc-$(1)-$(2): BASE_IMAGE = $(DOCKER_USER)/build-base-$(1):latest
+gcc-$(1)-$(2): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
 gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
-	  -t $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION) \
-	  -t $(DOCKER_USER)/gcc-$(1)-$(2):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):latest \
 	  build
 push-gcc-$(1)-$(2)::
-	-docker push $(DOCKER_USER)/gcc-$(1)-$(2):$(GCC_VERSION)
-	-docker push $(DOCKER_USER)/gcc-$(1)-$(2):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):latest
 push:: push-gcc-$(1)-$(2)
 endef
 
@@ -199,23 +200,27 @@ $(eval $(call create-gcc-rules,x86_64,linux-gnu))
 $(eval $(call create-gcc-rules,i686,w64-mingw32))
 $(eval $(call create-gcc-rules,x86_64,w64-mingw32))
 
-PROTON_BASE_IMAGE = $(DOCKER_USER)/steamrt:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE = $(PROTONSDK_URLBASE)/steamrt:$(STEAMRT_VERSION)
 
+define create-proton-rules
 .PHONY: proton
 all: proton
 proton: BASE_IMAGE = $(PROTON_BASE_IMAGE)
 proton: proton.Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
-	docker build -f $< \
-	  --cache-from=$(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
-	  -t $(DOCKER_USER)/proton:$(STEAMRT_VERSION) \
-	  -t $(DOCKER_USER)/proton:latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION)
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/proton:latest \
 	  build
 push-proton::
-	-docker push $(DOCKER_USER)/proton:$(STEAMRT_VERSION)
-	-docker push $(DOCKER_USER)/proton:latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton:latest
 push:: push-proton
+endef
+
+$(eval $(call create-proton-rules))
 
 WINE_BASE_IMAGE_i686 = i386/debian:unstable
 WINE_BASE_IMAGE_x86_64 = debian:unstable
@@ -228,13 +233,13 @@ all wine: wine-$(1)
 wine-$(1): BASE_IMAGE = $(WINE_BASE_IMAGE_$(1))
 wine-$(1): wine-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/wine-$(1):latest
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/wine-$(1):latest \
-	  -t $(DOCKER_USER)/wine-$(1):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/wine-$(1):latest
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/wine-$(1):latest \
+	  -t $(PROTONSDK_URLBASE)/wine-$(1):latest \
 	  build
 push-wine-$(1)::
-	-docker push $(DOCKER_USER)/wine-$(1):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/wine-$(1):latest
 push:: push-wine-$(1)
 endef
 
@@ -246,17 +251,17 @@ $(eval $(call create-wine-rules,llvm-x86_64))
 define create-devel-rules
 .PHONY: devel-$(1)
 all devel: devel-$(1)
-devel-$(1): BASE_IMAGE = $(DOCKER_USER)/wine-$(1):latest
+devel-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/wine-$(1):latest
 devel-$(1): devel-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-docker pull $(DOCKER_USER)/wine-$(1):latest
-	-docker pull $(DOCKER_USER)/devel-$(1):latest
-	docker build -f $$< \
-	  --cache-from=$(DOCKER_USER)/devel-$(1):latest \
-	  -t $(DOCKER_USER)/devel-$(1):latest \
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/wine-$(1):latest
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/devel-$(1):latest
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(PROTONSDK_URLBASE)/devel-$(1):latest \
+	  -t $(PROTONSDK_URLBASE)/devel-$(1):latest \
 	  build
 push-devel-$(1)::
-	-docker push $(DOCKER_USER)/devel-$(1):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/devel-$(1):latest
 push:: push-devel-$(1)
 endef
 

@@ -1,8 +1,8 @@
-FROM @DOCKER_USER@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
-FROM @DOCKER_USER@/mingw-libcxx-@ARCH@:@LLVM_VERSION@ AS mingw-libcxx
-FROM @DOCKER_USER@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
-FROM @DOCKER_USER@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt
-FROM @DOCKER_USER@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
+FROM @PROTONSDK_URLBASE@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
+FROM @PROTONSDK_URLBASE@/mingw-libcxx-@ARCH@:@LLVM_VERSION@ AS mingw-libcxx
+FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt
+FROM @PROTONSDK_URLBASE@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
 FROM @BASE_IMAGE@ AS build
 RUN apt-get update && apt-get install -y \
   cmake \

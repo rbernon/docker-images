@@ -1,12 +1,12 @@
-FROM @DOCKER_USER@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
-FROM @DOCKER_USER@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
-FROM @DOCKER_USER@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
-FROM @DOCKER_USER@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt-llvm
-FROM @DOCKER_USER@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads-llvm
-FROM @DOCKER_USER@/mingw-libcxx-@ARCH@:@LLVM_VERSION@ AS mingw-libcxx
-FROM @DOCKER_USER@/mingw-compiler-rt-@ARCH@:@LLVM_VERSION@ AS mingw-compiler-rt
-FROM @DOCKER_USER@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
-FROM @DOCKER_USER@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
+FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
+FROM @PROTONSDK_URLBASE@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
+FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt-llvm
+FROM @PROTONSDK_URLBASE@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads-llvm
+FROM @PROTONSDK_URLBASE@/mingw-libcxx-@ARCH@:@LLVM_VERSION@ AS mingw-libcxx
+FROM @PROTONSDK_URLBASE@/mingw-compiler-rt-@ARCH@:@LLVM_VERSION@ AS mingw-compiler-rt
+FROM @PROTONSDK_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
+FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
 
 FROM @BASE_IMAGE@ AS base
 RUN apt-get update && apt-get install -y \
