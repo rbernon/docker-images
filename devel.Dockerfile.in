@@ -14,8 +14,6 @@ RUN apt-get update && apt-get install -y \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /var/lib/apt/lists/*
 
-ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-@ARCH_TINI@ /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "-s", "-g", "--"]
+ENTRYPOINT ["/usr/bin/tini-static", "-s", "-g", "--"]
 
 CMD ["/bin/bash"]
