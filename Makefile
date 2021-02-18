@@ -158,15 +158,24 @@ push:: push-mingw-$(2)-$(1)
 endef
 
 $(eval $(call create-mingw-rules,i686,headers))
-$(eval $(call create-mingw-rules,i686,gcc))
+$(eval $(call create-mingw-rules,i686,gcc-$(GCC_VERSION)))
 $(eval $(call create-mingw-rules,i686,crt))
 $(eval $(call create-mingw-rules,i686,pthreads))
 $(eval $(call create-mingw-rules,i686,widl))
 $(eval $(call create-mingw-rules,x86_64,headers))
-$(eval $(call create-mingw-rules,x86_64,gcc))
+$(eval $(call create-mingw-rules,x86_64,gcc-$(GCC_VERSION)))
 $(eval $(call create-mingw-rules,x86_64,crt))
 $(eval $(call create-mingw-rules,x86_64,pthreads))
 $(eval $(call create-mingw-rules,x86_64,widl))
+
+mingw-gcc-$(GCC_VERSION).Dockerfile.in: mingw-gcc.Dockerfile.in
+	cp $< $@
+
+mingw-gcc-i686: mingw-gcc-$(GCC_VERSION)-i686
+push-mingw-gcc-i686: push-mingw-gcc-$(GCC_VERSION)-i686
+
+mingw-gcc-x86_64: mingw-gcc-$(GCC_VERSION)-x86_64
+push-mingw-gcc-x86_64: push-mingw-gcc-$(GCC_VERSION)-x86_64
 
 $(eval $(call create-mingw-rules,i686,headers-llvm))
 $(eval $(call create-mingw-rules,x86_64,headers-llvm))
