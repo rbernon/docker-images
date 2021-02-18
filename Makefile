@@ -35,6 +35,8 @@ RUST_VERSION = 1.44.1
 LLVM_VERSION = 11.0.0
 LLVM_MINGW_VERSION = 11.0
 
+IMAGES_VERSION = stable
+
 %.Dockerfile: %.Dockerfile.in
 	sed -re 's!@PROTONSDK_URLBASE@!$(PROTONSDK_URLBASE)!g' \
 	    -re 's!@BASE_IMAGE@!$(BASE_IMAGE)!g' \
@@ -233,12 +235,14 @@ all wine: wine-$(1)
 wine-$(1): BASE_IMAGE = $(WINE_BASE_IMAGE_$(1))
 wine-$(1): wine-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-$(DOCKER) pull $(PROTONSDK_URLBASE)/wine-$(1):latest
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION)
 	$(DOCKER) build -f $$< \
-	  --cache-from=$(PROTONSDK_URLBASE)/wine-$(1):latest \
+	  --cache-from=$(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION) \
 	  -t $(PROTONSDK_URLBASE)/wine-$(1):latest \
 	  build
 push-wine-$(1)::
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/wine-$(1):latest
 push:: push-wine-$(1)
 endef
@@ -251,16 +255,17 @@ $(eval $(call create-wine-rules,llvm-x86_64))
 define create-devel-rules
 .PHONY: devel-$(1)
 all devel: devel-$(1)
-devel-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/wine-$(1):latest
+devel-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION)
 devel-$(1): devel-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-$(DOCKER) pull $(PROTONSDK_URLBASE)/wine-$(1):latest
-	-$(DOCKER) pull $(PROTONSDK_URLBASE)/devel-$(1):latest
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/devel-$(1):$(IMAGES_VERSION)
 	$(DOCKER) build -f $$< \
-	  --cache-from=$(PROTONSDK_URLBASE)/devel-$(1):latest \
+	  --cache-from=$(PROTONSDK_URLBASE)/devel-$(1):$(IMAGES_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/devel-$(1):$(IMAGES_VERSION) \
 	  -t $(PROTONSDK_URLBASE)/devel-$(1):latest \
 	  build
 push-devel-$(1)::
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/devel-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/devel-$(1):latest
 push:: push-devel-$(1)
 endef
