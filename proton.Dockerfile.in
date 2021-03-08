@@ -16,22 +16,44 @@ FROM @PROTONSDK_URLBASE@/gcc-i686-w64-mingw32:@GCC_VERSION@ AS gcc-mingw-i686
 FROM @PROTONSDK_URLBASE@/gcc-x86_64-w64-mingw32:@GCC_VERSION@ AS gcc-mingw-x86_64
 
 FROM @BASE_IMAGE@ AS base
-# RUN apt-get update && apt-get install -y \
-#   flex \
-#   libcapi20-dev \
-#   libgmp-dev \
-#   libgphoto2-2-dev \
-#   libgsm1-dev \
-#   libhal-dev \
-#   libmpg123-dev \
-#   libosmesa6-dev \
-#   libpcap-dev \
-#   libsane-dev \
-#   libv4l-dev \
-#   libvulkan-dev \
-#   libxslt1-dev \
-# && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
-# && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+  libcairo2-dev \
+  libxcb-composite0-dev \
+  libxcb-cursor-dev \
+  libxcb-damage0-dev \
+  libxcb-dpms0-dev \
+  libxcb-dri2-0-dev \
+  libxcb-dri3-dev \
+  libxcb-ewmh-dev \
+  libxcb-glx0-dev \
+  libxcb-icccm4-dev \
+  libxcb-image0-dev \
+  libxcb-imdkit-dev \
+  libxcb-keysyms1-dev \
+  libxcb-present-dev \
+  libxcb-randr0-dev \
+  libxcb-record0-dev \
+  libxcb-render-util0-dev \
+  libxcb-render0-dev \
+  libxcb-res0-dev \
+  libxcb-screensaver0-dev \
+  libxcb-shape0-dev \
+  libxcb-shm0-dev \
+  libxcb-sync-dev \
+  libxcb-util-dev \
+  libxcb-util0-dev \
+  libxcb-xf86dri0-dev \
+  libxcb-xfixes0-dev \
+  libxcb-xinerama0-dev \
+  libxcb-xinput-dev \
+  libxcb-xkb-dev \
+  libxcb-xrm-dev \
+  libxcb-xtest0-dev \
+  libxcb-xv0-dev \
+  libxcb-xvmc0-dev \
+  libxcb1-dev \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /var/lib/apt/lists/*
 
 COPY --from=binutils-linux-i686   /opt/usr /usr
 COPY --from=binutils-linux-x86_64 /opt/usr /usr

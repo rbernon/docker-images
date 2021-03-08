@@ -16,9 +16,6 @@ RUN apt-get update && apt-get install -y \
   curl \
   flex \
   gettext \
-  libisl22 \
-  libmpc3 \
-  libmpfr6 \
   libasound2-dev \
   libcairo2-dev \
   libcapi20-dev \
@@ -36,11 +33,14 @@ RUN apt-get update && apt-get install -y \
   libgsm1-dev \
   libgsm1-dev \
   libgstreamer-plugins-base1.0-dev \
+  libisl22 \
   libjpeg-dev \
   libjxr-dev \
   libkrb5-dev \
   liblcms2-dev \
   libldap2-dev \
+  libmpc3 \
+  libmpfr6 \
   libmpg123-dev \
   libncurses5-dev \
   libopenal-dev \
@@ -59,6 +59,40 @@ RUN apt-get update && apt-get install -y \
   libvkd3d-dev \
   libvulkan-dev \
   libx11-dev \
+  libxcb-composite0-dev \
+  libxcb-cursor-dev \
+  libxcb-damage0-dev \
+  libxcb-dpms0-dev \
+  libxcb-dri2-0-dev \
+  libxcb-dri3-dev \
+  libxcb-ewmh-dev \
+  libxcb-glx0-dev \
+  libxcb-icccm4-dev \
+  libxcb-image0-dev \
+  libxcb-imdkit-dev \
+  libxcb-keysyms1-dev \
+  libxcb-present-dev \
+  libxcb-randr0-dev \
+  libxcb-record0-dev \
+  libxcb-render-util0-dev \
+  libxcb-render0-dev \
+  libxcb-res0-dev \
+  libxcb-screensaver0-dev \
+  libxcb-shape0-dev \
+  libxcb-shm0-dev \
+  libxcb-sync-dev \
+  libxcb-util-dev \
+  libxcb-util0-dev \
+  libxcb-xf86dri0-dev \
+  libxcb-xfixes0-dev \
+  libxcb-xinerama0-dev \
+  libxcb-xinput-dev \
+  libxcb-xkb-dev \
+  libxcb-xrm-dev \
+  libxcb-xtest0-dev \
+  libxcb-xv0-dev \
+  libxcb-xvmc0-dev \
+  libxcb1-dev \
   libxcomposite-dev \
   libxcursor-dev \
   libxext-dev \
