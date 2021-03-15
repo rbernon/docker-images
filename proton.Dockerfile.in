@@ -52,6 +52,7 @@ RUN apt-get update && apt-get install -y \
   libxcb-xv0-dev \
   libxcb-xvmc0-dev \
   libxcb1-dev \
+  libxpresent-dev \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /var/lib/apt/lists/*
 
