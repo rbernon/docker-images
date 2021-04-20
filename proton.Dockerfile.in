@@ -16,7 +16,7 @@ FROM @PROTONSDK_URLBASE@/gcc-i686-w64-mingw32:@GCC_VERSION@ AS gcc-mingw-i686
 FROM @PROTONSDK_URLBASE@/gcc-x86_64-w64-mingw32:@GCC_VERSION@ AS gcc-mingw-x86_64
 
 FROM @BASE_IMAGE@ AS base
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
   libcairo2-dev \
   libxcb-composite0-dev \
   libxcb-cursor-dev \
