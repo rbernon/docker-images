@@ -214,24 +214,25 @@ $(eval $(call create-gcc-rules,x86_64,w64-mingw32))
 PROTON_BASE_IMAGE = $(PROTONSDK_URLBASE)/steamrt:$(STEAMRT_VERSION)
 
 define create-proton-rules
-.PHONY: proton
-all: proton
-proton: BASE_IMAGE = $(PROTON_BASE_IMAGE)
-proton: proton.Dockerfile
+.PHONY: proton$(1)
+all: proton$(1)
+proton$(1): BASE_IMAGE = $(PROTON_BASE_IMAGE)
+proton$(1): proton$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-$(DOCKER) pull $(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION)
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION)
 	$(DOCKER) build -f $$< \
-	  --cache-from=$(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION) \
-	  -t $(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION) \
-	  -t $(PROTONSDK_URLBASE)/proton:latest \
+	  --cache-from=$(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/proton$(1):latest \
 	  build
-push-proton::
-	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton:$(PROTONSDK_VERSION)
-	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton:latest
-push:: push-proton
+push-proton$(1)::
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton$(1):latest
+push:: push-proton$(1)
 endef
 
-$(eval $(call create-proton-rules))
+$(eval $(call create-proton-rules,))
+$(eval $(call create-proton-rules,-llvm))
 
 WINE_BASE_IMAGE_i686 = i386/debian:unstable
 WINE_BASE_IMAGE_x86_64 = debian:unstable
