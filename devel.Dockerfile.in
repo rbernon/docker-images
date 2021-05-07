@@ -1,7 +1,8 @@
 FROM @BASE_IMAGE@ AS build
-RUN apt-get update && apt-get install -y \
+RUN echo "deb http://ftp.debian.org/debian/ experimental main non-free contrib" >> /etc/apt/sources.list && \
+  apt-get update && apt-get install -y \
   cmake \
-  libdrm-dev \
+  libdrm-dev/experimental \
   libxcb-dri2-0-dev \
   libxcb-dri3-dev \
   libxcb-present-dev \
