@@ -7,9 +7,11 @@ RUN echo "deb http://ftp.debian.org/debian/ experimental main non-free contrib" 
   libxcb-dri3-dev \
   libxcb-present-dev \
   libxshmfence-dev \
+  libxdamage-dev \
   llvm-dev \
   meson \
   python3-mako \
+  valgrind \
   wayland-protocols \
   libwayland-egl-backend-dev \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
