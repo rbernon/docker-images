@@ -14,6 +14,7 @@ RUN echo "deb http://ftp.debian.org/debian/ experimental main non-free contrib" 
   valgrind \
   wayland-protocols \
   libwayland-egl-backend-dev \
+&& apt-get build-dep mesa -y \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /var/lib/apt/lists/*
 

@@ -35,7 +35,7 @@ RUST_VERSION = 1.50.0
 LLVM_VERSION = 11.0.0
 LLVM_MINGW_VERSION = 11.0
 
-IMAGES_VERSION = stable
+IMAGES_VERSION = experimental
 
 %.Dockerfile: %.Dockerfile.in
 	sed -re 's!@PROTONSDK_URLBASE@!$(PROTONSDK_URLBASE)!g' \
