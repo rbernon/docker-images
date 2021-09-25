@@ -1,11 +1,5 @@
 FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
 FROM @BASE_IMAGE@ AS build
-RUN apt-get update && apt-get install -y \
-  cmake \
-  ninja-build \
-  python \
-&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
-&& rm -rf /var/lib/apt/lists/*
 
 # From llvm-mingw:
 # Copyright (c) 2018 Martin Storsjo

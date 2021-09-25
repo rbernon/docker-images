@@ -2,6 +2,7 @@ FROM @BASE_IMAGE@ AS base
 RUN apt-get update && apt-get install -y \
   autoconf \
   bzip2 \
+  cmake \
   g++ \
   gcc \
   libgmp-dev \
@@ -11,6 +12,9 @@ RUN apt-get update && apt-get install -y \
   libtool \
   libz-dev \
   make \
+  meson \
+  ninja-build \
+  python3 \
   wget \
   xz-utils \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \

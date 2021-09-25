@@ -2,13 +2,12 @@ FROM @PROTONSDK_URLBASE@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
 FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt
 FROM @PROTONSDK_URLBASE@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
-FROM @BASE_IMAGE@ AS build
+FROM @BASE_IMAGE@ AS base
 RUN apt-get update && apt-get install -y \
-  cmake \
-  ninja-build \
-  python \
+  python3-distutils \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /var/lib/apt/lists/*
+
 COPY --from=mingw-llvm     /opt/usr /usr
 COPY --from=mingw-headers  /opt/usr /usr
 COPY --from=mingw-crt      /opt/usr /usr

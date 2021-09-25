@@ -1,4 +1,4 @@
-STEAMRT_VERSION = 0.20210406.0
+STEAMRT_VERSION = 0.20210920.0
 STEAMRT_URLBASE = registry.gitlab.steamos.cloud
 
 PROTONSDK_URLBASE = rbernon
@@ -25,13 +25,13 @@ push:: push-steamrt
 # this is just for building toolchain, as we do static builds it should
 # not have any impact on the end result, but changing it will invalidate
 # docker caches, so we need something that don't change much
-BASE_IMAGE_i686 = i386/ubuntu:18.04
-BASE_IMAGE_x86_64 = ubuntu:18.04
+BASE_IMAGE_i686 = i386/debian:10
+BASE_IMAGE_x86_64 = debian:10
 
-BINUTILS_VERSION = 2.36.1
-GCC_VERSION = 10.2.0
-MINGW_VERSION = 8.0.0
-RUST_VERSION = 1.50.0
+BINUTILS_VERSION = 2.37
+GCC_VERSION = 11.2.0
+MINGW_VERSION = 9.0.0
+RUST_VERSION = 1.55.0
 LLVM_VERSION = 11.0.0
 LLVM_MINGW_VERSION = 11.0
 
