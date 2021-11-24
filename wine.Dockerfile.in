@@ -14,6 +14,7 @@ RUN echo "deb-src http://ftp.debian.org/debian/ unstable main non-free contrib" 
 && apt-get install -y \
   autoconf2.13 \
   ccache \
+  curl \
   tini \
   unzip \
   valgrind \
