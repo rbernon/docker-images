@@ -32,6 +32,8 @@ RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION
     -DLLVM_HOST_TRIPLE=@ARCH@-linux-gnu \
     -DLLVM_STATIC_LINK_CXX_STDLIB=ON \
     -DLIBCLANG_BUILD_STATIC=ON \
+    -DLLVM_INSTALL_BINUTILS_SYMLINKS=ON \
+    -DLLVM_ENABLE_ZLIB=OFF \
 && DESTDIR=/opt ninja -C build install/strip \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /tmp/llvm-project-llvmorg-@LLVM_VERSION@
