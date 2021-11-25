@@ -11,7 +11,9 @@ FROM @BASE_IMAGE@ AS base
 RUN echo "deb-src http://ftp.debian.org/debian/ unstable main non-free contrib" >> /etc/apt/sources.list \
 && apt-get update \
 && apt-get install -y \
+  autoconf \
   autoconf2.13 \
+  bison \
   ccache \
   curl \
   flex \
