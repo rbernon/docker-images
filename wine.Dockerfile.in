@@ -10,11 +10,108 @@ FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-w64-mingw32:@GCC_VERSION@ AS gcc-mingw
 FROM @BASE_IMAGE@ AS base
 RUN echo "deb-src http://ftp.debian.org/debian/ unstable main non-free contrib" >> /etc/apt/sources.list \
 && apt-get update \
-&& apt-get build-dep wine -y \
 && apt-get install -y \
   autoconf2.13 \
   ccache \
   curl \
+  flex \
+  gettext \
+  libasound2-dev \
+  libcairo2-dev \
+  libcapi20-dev \
+  libcups2-dev \
+  libdbus-1-dev \
+  libfaudio-dev \
+  libfontconfig1-dev \
+  libfreetype6-dev \
+  libgettextpo-dev \
+  libgl1-mesa-dev \
+  libglu1-mesa-dev \
+  libgmp-dev \
+  libgnutls28-dev \
+  libgphoto2-dev \
+  libgsm1-dev \
+  libgsm1-dev \
+  libgstreamer-plugins-base1.0-dev \
+  libisl22 \
+  libjpeg-dev \
+  libjxr-dev \
+  libkrb5-dev \
+  liblcms2-dev \
+  libldap2-dev \
+  libmpc3 \
+  libmpfr6 \
+  libmpg123-dev \
+  libncurses5-dev \
+  libopenal-dev \
+  libosmesa6-dev \
+  libpcap-dev \
+  libpcap0.8-dev \
+  libpng-dev \
+  libpulse-dev \
+  libsane-dev \
+  libsdl2-dev \
+  libssl-dev \
+  libtiff-dev \
+  libudev-dev \
+  libusb-1.0-0-dev \
+  libv4l-dev \
+  libvkd3d-dev \
+  libvulkan-dev \
+  libx11-dev \
+  libxcb-composite0-dev \
+  libxcb-cursor-dev \
+  libxcb-damage0-dev \
+  libxcb-dpms0-dev \
+  libxcb-dri2-0-dev \
+  libxcb-dri3-dev \
+  libxcb-ewmh-dev \
+  libxcb-glx0-dev \
+  libxcb-icccm4-dev \
+  libxcb-image0-dev \
+  libxcb-imdkit-dev \
+  libxcb-keysyms1-dev \
+  libxcb-present-dev \
+  libxcb-randr0-dev \
+  libxcb-record0-dev \
+  libxcb-render-util0-dev \
+  libxcb-render0-dev \
+  libxcb-res0-dev \
+  libxcb-screensaver0-dev \
+  libxcb-shape0-dev \
+  libxcb-shm0-dev \
+  libxcb-sync-dev \
+  libxcb-util-dev \
+  libxcb-util0-dev \
+  libxcb-xf86dri0-dev \
+  libxcb-xfixes0-dev \
+  libxcb-xinerama0-dev \
+  libxcb-xinput-dev \
+  libxcb-xkb-dev \
+  libxcb-xrm-dev \
+  libxcb-xtest0-dev \
+  libxcb-xv0-dev \
+  libxcb-xvmc0-dev \
+  libxcb1-dev \
+  libxcomposite-dev \
+  libxcursor-dev \
+  libxext-dev \
+  libxfixes-dev \
+  libxi-dev \
+  libxinerama-dev \
+  libxkbfile-dev \
+  libxml2-dev \
+  libxmu-dev \
+  libxpresent-dev \
+  libxrandr-dev \
+  libxrender-dev \
+  libxslt1-dev \
+  libxt-dev \
+  libxxf86dga-dev \
+  libxxf86vm-dev \
+  opencl-dev \
+  oss4-dev \
+  pkg-config \
   tini \
   unzip \
   valgrind \
