@@ -28,21 +28,20 @@ COPY --from=mingw-libcxx   /opt/usr /usr
 RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
 && ln -sf /usr/@ARCH@-w64-mingw32 /usr/@ARCH_BASE@-w64-mingw32 \
+&& sed -ire 's/__has_include..features.h../0/' compiler-rt/lib/sanitizer_common/sanitizer_platform.h \
 && cmake -Bbuild -Hcompiler-rt -GNinja \
     -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/@LLVM_VERSION@ \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_CROSSCOMPILING=TRUE \
     -DCMAKE_SYSTEM_NAME=Windows \
-    -DCMAKE_SIZEOF_VOID_P=@SIZEOF_VOIDP@ \
     -DCMAKE_C_COMPILER=@ARCH@-w64-mingw32-clang \
     -DCMAKE_CXX_COMPILER=@ARCH@-w64-mingw32-clang++ \
-    -DCMAKE_C_COMPILER_WORKS=TRUE \
-    -DCMAKE_CXX_COMPILER_WORKS=TRUE \
     -DCMAKE_C_COMPILER_TARGET=@ARCH_BASE@-windows-gnu \
+    -DCMAKE_CXX_COMPILER_TARGET=@ARCH_BASE@-windows-gnu \
     -DCMAKE_AR=/usr/bin/llvm-ar \
     -DCMAKE_RANLIB=/usr/bin/llvm-ranlib \
     -DCOMPILER_RT_DEFAULT_TARGET_ONLY=TRUE \
     -DCOMPILER_RT_USE_BUILTINS_LIBRARY=TRUE \
+    -DSANITIZER_CXX_ABI=libc++ \
 && DESTDIR=/opt ninja -C build install \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /tmp/llvm-project-llvmorg-@LLVM_VERSION@
