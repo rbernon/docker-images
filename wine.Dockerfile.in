@@ -8,8 +8,7 @@ FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
 FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-w64-mingw32:@GCC_VERSION@ AS gcc-mingw
 
 FROM @BASE_IMAGE@ AS base
-RUN echo "deb-src http://ftp.debian.org/debian/ unstable main non-free contrib" >> /etc/apt/sources.list \
-&& apt-get update \
+RUN apt-get update \
 && apt-get install -y \
   autoconf \
   autoconf2.13 \
@@ -18,6 +17,7 @@ RUN echo "deb-src http://ftp.debian.org/debian/ unstable main non-free contrib" 
   curl \
   flex \
   gettext \
+  git \
   libasound2-dev \
   libcairo2-dev \
   libcapi20-dev \

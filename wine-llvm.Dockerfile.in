@@ -9,13 +9,16 @@ FROM @PROTONSDK_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
 FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
 
 FROM @BASE_IMAGE@ AS base
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+&& apt-get install -y \
   autoconf \
+  autoconf2.13 \
   bison \
   ccache \
   curl \
   flex \
   gettext \
+  git \
   libasound2-dev \
   libcairo2-dev \
   libcapi20-dev \
@@ -113,6 +116,10 @@ RUN apt-get update && apt-get install -y \
   oss4-dev \
   pkg-config \
   tini \
+  unzip \
+  valgrind \
+  yasm \
+  zip \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /var/lib/apt/lists/*
 
