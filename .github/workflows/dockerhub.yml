@@ -427,8 +427,32 @@ jobs:
       - name: Push
         run: make push-gcc-x86_64-w64-mingw32
 
+  wine-base-i686:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make wine-base-i686
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-wine-base-i686
+
+  wine-base-x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make wine-base-x86_64
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-wine-base-x86_64
+
   wine-i686:
-    needs: [gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686]
+    needs: [wine-base-i686, gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -441,7 +465,7 @@ jobs:
         run: make push-wine-i686
 
   wine-x86_64:
-    needs: [gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, mingw-widl-x86_64]
+    needs: [wine-base-x86_64, gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -454,7 +478,7 @@ jobs:
         run: make push-wine-x86_64
 
   wine-llvm-i686:
-    needs: [gcc-i686-linux-gnu, mingw-compiler-rt-i686, mingw-widl-i686]
+    needs: [wine-base-i686, gcc-i686-linux-gnu, mingw-compiler-rt-i686, mingw-widl-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -467,7 +491,7 @@ jobs:
         run: make push-wine-llvm-i686
 
   wine-llvm-x86_64:
-    needs: [gcc-x86_64-linux-gnu, mingw-compiler-rt-x86_64, mingw-widl-x86_64]
+    needs: [wine-base-x86_64, gcc-x86_64-linux-gnu, mingw-compiler-rt-x86_64, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

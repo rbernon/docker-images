@@ -234,10 +234,12 @@ endef
 $(eval $(call create-proton-rules,))
 $(eval $(call create-proton-rules,-llvm))
 
-WINE_BASE_IMAGE_i686 = i386/debian:unstable
-WINE_BASE_IMAGE_x86_64 = debian:unstable
-WINE_BASE_IMAGE_llvm-i686 = i386/debian:unstable
-WINE_BASE_IMAGE_llvm-x86_64 = debian:unstable
+WINE_BASE_IMAGE_base-i686 = i386/debian:unstable
+WINE_BASE_IMAGE_base-x86_64 = debian:unstable
+WINE_BASE_IMAGE_i686 = $(PROTONSDK_URLBASE)/wine-base-i686:$(IMAGES_VERSION)
+WINE_BASE_IMAGE_x86_64 = $(PROTONSDK_URLBASE)/wine-base-x86_64:$(IMAGES_VERSION)
+WINE_BASE_IMAGE_llvm-i686 = $(PROTONSDK_URLBASE)/wine-base-i686:$(IMAGES_VERSION)
+WINE_BASE_IMAGE_llvm-x86_64 = $(PROTONSDK_URLBASE)/wine-base-x86_64:$(IMAGES_VERSION)
 
 define create-wine-rules
 .PHONY: wine-$(1)
@@ -257,6 +259,8 @@ push-wine-$(1)::
 push:: push-wine-$(1)
 endef
 
+$(eval $(call create-wine-rules,base-i686))
+$(eval $(call create-wine-rules,base-x86_64))
 $(eval $(call create-wine-rules,i686))
 $(eval $(call create-wine-rules,x86_64))
 $(eval $(call create-wine-rules,llvm-i686))
