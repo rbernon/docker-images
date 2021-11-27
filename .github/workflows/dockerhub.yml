@@ -503,8 +503,21 @@ jobs:
       - name: Push
         run: make push-wine-llvm-x86_64
 
+  proton-base:
+    needs: [steamrt]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make proton-base
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-proton-base
+
   proton:
-    needs: [steamrt, gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686, mingw-widl-x86_64]
+    needs: [proton-base, gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -517,7 +530,7 @@ jobs:
         run: make push-proton
 
   proton-llvm:
-    needs: [steamrt, gcc-x86_64-linux-gnu, mingw-compiler-rt-x86_64, gcc-i686-linux-gnu, mingw-compiler-rt-i686, mingw-widl-i686, mingw-widl-x86_64]
+    needs: [proton-base, gcc-x86_64-linux-gnu, mingw-compiler-rt-x86_64, gcc-i686-linux-gnu, mingw-compiler-rt-i686, mingw-widl-i686, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

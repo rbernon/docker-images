@@ -211,12 +211,14 @@ $(eval $(call create-gcc-rules,x86_64,linux-gnu))
 $(eval $(call create-gcc-rules,i686,w64-mingw32))
 $(eval $(call create-gcc-rules,x86_64,w64-mingw32))
 
-PROTON_BASE_IMAGE = $(PROTONSDK_URLBASE)/steamrt:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE-base = $(PROTONSDK_URLBASE)/steamrt:$(STEAMRT_VERSION)
+PROTON_BASE_IMAGE = $(PROTONSDK_URLBASE)/proton-base:$(PROTONSDK_VERSION)
+PROTON_BASE_IMAGE-llvm = $(PROTONSDK_URLBASE)/proton-base:$(PROTONSDK_VERSION)
 
 define create-proton-rules
 .PHONY: proton$(1)
 all: proton$(1)
-proton$(1): BASE_IMAGE = $(PROTON_BASE_IMAGE)
+proton$(1): BASE_IMAGE = $(PROTON_BASE_IMAGE$(1))
 proton$(1): proton$(1).Dockerfile
 	rm -rf build; mkdir -p build
 	-$(DOCKER) pull $(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION)
@@ -231,6 +233,7 @@ push-proton$(1)::
 push:: push-proton$(1)
 endef
 
+$(eval $(call create-proton-rules,-base))
 $(eval $(call create-proton-rules,))
 $(eval $(call create-proton-rules,-llvm))
 
