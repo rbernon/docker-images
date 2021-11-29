@@ -7,6 +7,8 @@ RUN wget -qO- https://github.com/mirror/mingw-w64/archive/v@MINGW_VERSION@.tar.g
   --enable-sdk=all \
   --enable-secure-api \
   --enable-idl \
+  --with-default-win32-winnt=0x601 \
+  --with-default-msvcrt=ucrt \
   MAKEINFO=true \
 && make --quiet -j8 MAKEINFO=true \
 && make --quiet -j8 MAKEINFO=true install-strip DESTDIR=/opt \

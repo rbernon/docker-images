@@ -2,8 +2,8 @@ FROM @PROTONSDK_URLBASE@/binutils-i686-linux-gnu:@BINUTILS_VERSION@ AS binutils-
 FROM @PROTONSDK_URLBASE@/binutils-x86_64-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux-x86_64
 FROM @PROTONSDK_URLBASE@/mingw-llvm-i686:@LLVM_VERSION@ AS mingw-llvm-i686
 FROM @PROTONSDK_URLBASE@/mingw-llvm-x86_64:@LLVM_VERSION@ AS mingw-llvm-x86_64
-FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-i686:@MINGW_VERSION@ AS mingw-headers-i686
-FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-x86_64:@MINGW_VERSION@ AS mingw-headers-x86_64
+FROM @PROTONSDK_URLBASE@/mingw-headers-i686:@MINGW_VERSION@ AS mingw-headers-i686
+FROM @PROTONSDK_URLBASE@/mingw-headers-x86_64:@MINGW_VERSION@ AS mingw-headers-x86_64
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-i686:@MINGW_VERSION@ AS mingw-crt-llvm-i686
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-x86_64:@MINGW_VERSION@ AS mingw-crt-llvm-x86_64
 FROM @PROTONSDK_URLBASE@/mingw-pthreads-llvm-i686:@MINGW_VERSION@ AS mingw-pthreads-llvm-i686

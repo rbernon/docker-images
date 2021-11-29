@@ -1,5 +1,5 @@
 FROM @PROTONSDK_URLBASE@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
-FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt
 FROM @PROTONSDK_URLBASE@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
 FROM @BASE_IMAGE@ AS base
