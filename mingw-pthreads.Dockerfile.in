@@ -1,12 +1,15 @@
-FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils
 FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils
 FROM @PROTONSDK_URLBASE@/mingw-gcc-@GCC_VERSION@-@ARCH@:@MINGW_VERSION@ AS mingw-gcc
 FROM @PROTONSDK_URLBASE@/mingw-crt-@ARCH@:@MINGW_VERSION@ AS mingw-crt
+
 FROM @BASE_IMAGE@ AS build
-COPY --from=binutils      /opt/usr /usr
+
 COPY --from=mingw-headers /opt/usr /usr
+COPY --from=binutils      /opt/usr /usr
 COPY --from=mingw-gcc     /opt/usr /usr
 COPY --from=mingw-crt     /opt/usr /usr
+
 RUN wget -qO- https://github.com/mirror/mingw-w64/archive/v@MINGW_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/mingw-w64-@MINGW_VERSION@/mingw-w64-libraries/winpthreads \
 && ./configure --quiet \

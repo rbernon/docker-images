@@ -1,4 +1,4 @@
-name: Docker
+name: dockerhub
 on: [push]
 jobs:
   steamrt:
@@ -167,31 +167,83 @@ jobs:
       - name: Push
         run: make push-mingw-gcc-x86_64
 
-  mingw-llvm-i686:
-    needs: mingw-headers-i686
+  llvm-i686:
+    needs: [build-base-i686, mingw-headers-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-llvm-i686
+        run: make llvm-i686
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-llvm-i686
+        run: make push-llvm-i686
 
-  mingw-llvm-x86_64:
-    needs: mingw-headers-x86_64
+  llvm-x86_64:
+    needs: [build-base-x86_64, mingw-headers-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-llvm-x86_64
+        run: make llvm-x86_64
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-llvm-x86_64
+        run: make push-llvm-x86_64
+
+  llvm-base-i686-linux-gnu:
+    needs: [llvm-i686, mingw-headers-i686]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make llvm-base-i686-linux-gnu
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-llvm-base-i686-linux-gnu
+
+  llvm-base-i686-w64-mingw32:
+    needs: [llvm-i686, mingw-headers-i686]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make llvm-base-i686-w64-mingw32
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-llvm-base-i686-w64-mingw32
+
+  llvm-base-x86_64-linux-gnu:
+    needs: [llvm-x86_64, mingw-headers-x86_64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make llvm-base-x86_64-linux-gnu
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-llvm-base-x86_64-linux-gnu
+
+  llvm-base-x86_64-w64-mingw32:
+    needs: [llvm-x86_64, mingw-headers-x86_64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make llvm-base-x86_64-w64-mingw32
+      - name: Login
+        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push
+        run: make push-llvm-base-x86_64-w64-mingw32
 
   mingw-crt-i686:
     needs: mingw-gcc-i686
@@ -220,7 +272,7 @@ jobs:
         run: make push-mingw-crt-x86_64
 
   mingw-crt-llvm-i686:
-    needs: mingw-llvm-i686
+    needs: llvm-base-i686-w64-mingw32
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -233,7 +285,7 @@ jobs:
         run: make push-mingw-crt-llvm-i686
 
   mingw-crt-llvm-x86_64:
-    needs: mingw-llvm-x86_64
+    needs: llvm-base-x86_64-w64-mingw32
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -271,83 +323,57 @@ jobs:
       - name: Push
         run: make push-mingw-pthreads-x86_64
 
-  mingw-pthreads-llvm-i686:
-    needs: mingw-crt-llvm-i686
+  llvm-libcxx-i686-linux-gnu:
+    needs: [llvm-base-i686-linux-gnu, mingw-crt-llvm-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-pthreads-llvm-i686
+        run: make llvm-libcxx-i686-linux-gnu
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-pthreads-llvm-i686
+        run: make push-llvm-libcxx-i686-linux-gnu
 
-  mingw-pthreads-llvm-x86_64:
-    needs: mingw-crt-llvm-x86_64
+  llvm-libcxx-i686-w64-mingw32:
+    needs: [llvm-base-i686-w64-mingw32, mingw-crt-llvm-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-pthreads-llvm-x86_64
+        run: make llvm-libcxx-i686-w64-mingw32
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-pthreads-llvm-x86_64
+        run: make push-llvm-libcxx-i686-w64-mingw32
 
-  mingw-libcxx-i686:
-    needs: mingw-pthreads-llvm-i686
+  llvm-libcxx-x86_64-linux-gnu:
+    needs: [llvm-base-x86_64-linux-gnu, mingw-crt-llvm-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-libcxx-i686
+        run: make llvm-libcxx-x86_64-linux-gnu
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-libcxx-i686
+        run: make push-llvm-libcxx-x86_64-linux-gnu
 
-  mingw-libcxx-x86_64:
-    needs: mingw-pthreads-llvm-x86_64
+  llvm-libcxx-x86_64-w64-mingw32:
+    needs: [llvm-base-x86_64-w64-mingw32, mingw-crt-llvm-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-libcxx-x86_64
+        run: make llvm-libcxx-x86_64-w64-mingw32
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-libcxx-x86_64
-
-  mingw-compiler-rt-i686:
-    needs: mingw-libcxx-i686
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-compiler-rt-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-compiler-rt-i686
-
-  mingw-compiler-rt-x86_64:
-    needs: mingw-libcxx-x86_64
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-compiler-rt-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-compiler-rt-x86_64
+        run: make push-llvm-libcxx-x86_64-w64-mingw32
 
   gcc-i686-linux-gnu:
     needs: [binutils-i686-linux-gnu, mingw-pthreads-i686]
@@ -452,7 +478,7 @@ jobs:
         run: make push-wine-x86_64
 
   wine-llvm-i686:
-    needs: [wine-base-i686, gcc-i686-linux-gnu, mingw-compiler-rt-i686, mingw-widl-i686]
+    needs: [wine-base-i686, llvm-libcxx-i686-linux-gnu, llvm-libcxx-i686-w64-mingw32, mingw-widl-i686]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -465,7 +491,7 @@ jobs:
         run: make push-wine-llvm-i686
 
   wine-llvm-x86_64:
-    needs: [wine-base-x86_64, gcc-x86_64-linux-gnu, mingw-compiler-rt-x86_64, mingw-widl-x86_64]
+    needs: [wine-base-x86_64, llvm-libcxx-x86_64-linux-gnu, llvm-libcxx-x86_64-w64-mingw32, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -504,7 +530,7 @@ jobs:
         run: make push-proton
 
   proton-llvm:
-    needs: [proton-base, gcc-x86_64-linux-gnu, mingw-compiler-rt-x86_64, gcc-i686-linux-gnu, mingw-compiler-rt-i686, mingw-widl-i686, mingw-widl-x86_64]
+    needs: [proton-base, llvm-libcxx-x86_64-linux-gnu, llvm-libcxx-x86_64-w64-mingw32, llvm-libcxx-i686-linux-gnu, llvm-libcxx-i686-w64-mingw32, mingw-widl-i686, mingw-widl-x86_64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

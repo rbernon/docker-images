@@ -1,23 +1,22 @@
-FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
-FROM @PROTONSDK_URLBASE@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
 FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt-llvm
-FROM @PROTONSDK_URLBASE@/mingw-pthreads-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads-llvm
-FROM @PROTONSDK_URLBASE@/mingw-libcxx-@ARCH@:@LLVM_VERSION@ AS mingw-libcxx
-FROM @PROTONSDK_URLBASE@/mingw-compiler-rt-@ARCH@:@LLVM_VERSION@ AS mingw-compiler-rt
 FROM @PROTONSDK_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
-FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
+FROM @PROTONSDK_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
+FROM @PROTONSDK_URLBASE@/llvm-base-@ARCH@-linux-gnu:@LLVM_VERSION@ AS llvm-base-linux
+FROM @PROTONSDK_URLBASE@/llvm-base-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-base-mingw
+FROM @PROTONSDK_URLBASE@/llvm-libcxx-@ARCH@-linux-gnu:@LLVM_VERSION@ AS llvm-libcxx-linux
+FROM @PROTONSDK_URLBASE@/llvm-libcxx-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-libcxx-mingw
 
 FROM @BASE_IMAGE@ AS base
 
-COPY --from=binutils-linux      /opt/usr /usr
-COPY --from=mingw-llvm          /opt/usr /usr
-COPY --from=mingw-headers       /opt/usr /usr
-COPY --from=mingw-crt-llvm      /opt/usr /usr
-COPY --from=mingw-pthreads-llvm /opt/usr /usr
-COPY --from=mingw-libcxx        /opt/usr /usr
-COPY --from=mingw-compiler-rt   /opt/usr /usr
-COPY --from=mingw-widl          /opt/usr /usr
-COPY --from=gcc-linux           /opt/usr /usr
+COPY --from=mingw-headers     /opt/usr /usr
+COPY --from=mingw-crt-llvm    /opt/usr /usr
+COPY --from=mingw-widl        /opt/usr /usr
+
+COPY --from=llvm              /opt/usr /usr
+COPY --from=llvm-base-linux   /opt/usr /usr
+COPY --from=llvm-base-mingw   /opt/usr /usr
+COPY --from=llvm-libcxx-linux /opt/usr /usr
+COPY --from=llvm-libcxx-mingw /opt/usr /usr
 
 RUN bash -c 'mkdir -p /usr/lib/ccache && ls /usr/bin/{,*-}{cc,c++,gcc,g++}{,-[0-9]*} | sed -re s:/bin:/lib/ccache: | xargs -n1 ln -sf ../../bin/ccache'

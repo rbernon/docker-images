@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
   meson \
   ninja-build \
   python3 \
+  python3-distutils \
   wget \
   xz-utils \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \

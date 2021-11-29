@@ -1,0 +1,40 @@
+FROM @BASE_IMAGE@ AS build
+
+RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
+&& cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
+&& cmake -Bbuild -Hllvm -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_EXE_LINKER_FLAGS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive" \
+    -DCMAKE_INSTALL_PREFIX="/usr" \
+    -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive" \
+    -DLIBCLANG_BUILD_STATIC=ON \
+    -DLLVM_BUILD_STATIC=ON \
+    -DLLVM_ENABLE_LIBCXX=ON \
+    -DLLVM_ENABLE_PROJECTS="clang;lld" \
+    -DLLVM_ENABLE_ZLIB=OFF \
+    -DLLVM_INSTALL_BINUTILS_SYMLINKS=ON \
+    -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
+    -DLLVM_TARGETS_TO_BUILD="@ARCH_LLVM@" \
+    -DLLVM_TOOLCHAIN_TOOLS="llvm-ar;llvm-cxxfilt;llvm-nm;llvm-objcopy;llvm-objdump;llvm-pdbutil;llvm-rc;llvm-readobj;llvm-strings;llvm-symbolizer" \
+    -DLLVM_USE_LINKER=gold \
+&& DESTDIR=/opt ninja -C build install/strip \
+&& mv /opt/usr/bin/clang-[0-9]* /opt/usr/bin/clang \
+&& find /opt/usr/bin/ -type f -name 'clang-*' -delete \
+&& find /opt/usr/bin/ -type f -not -name 'clang*' -not -name 'llvm*' -not -name 'lld' -delete \
+&& ln -s lld /opt/usr/bin/ld \
+&& ln -s lld /opt/usr/bin/ld.bfd \
+&& ln -s llvm-ar /opt/usr/bin/ar \
+&& ln -s llvm-ar /opt/usr/bin/dlltool \
+&& ln -s llvm-ar /opt/usr/bin/ranlib \
+&& ln -s llvm-cxxfilt /opt/usr/bin/c++filt \
+&& ln -s llvm-nm /opt/usr/bin/nm \
+&& ln -s llvm-objcopy /opt/usr/bin/objcopy \
+&& ln -s llvm-objcopy /opt/usr/bin/strip \
+&& ln -s llvm-objdump /opt/usr/bin/objdump \
+&& ln -s llvm-rc /opt/usr/bin/windres \
+&& ln -s llvm-readobj /opt/usr/bin/readelf \
+&& ln -s llvm-size /opt/usr/bin/size \
+&& ln -s llvm-strings /opt/usr/bin/strings \
+&& ln -s llvm-symbolizer /opt/usr/bin/addr2line \
+&& rm -r /opt/usr/include /opt/usr/lib/cmake /opt/usr/lib/lib* /opt/usr/libexec /opt/usr/share \
+&& rm -rf /tmp/llvm-project-llvmorg-@LLVM_VERSION@

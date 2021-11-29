@@ -33,9 +33,15 @@ GCC_VERSION = 11.2.0
 MINGW_VERSION = 9.0.0
 RUST_VERSION = 1.55.0
 LLVM_VERSION = 13.0.0
-LLVM_MINGW_VERSION = 13.0
 
-IMAGES_VERSION = stable
+IMAGES_VERSION = experimental
+
+BUILD_BASE_IMAGE_i686 = $(PROTONSDK_URLBASE)/build-base-i686:latest
+BUILD_BASE_IMAGE_x86_64 = $(PROTONSDK_URLBASE)/build-base-x86_64:latest
+BUILD_BASE_IMAGE_i686-linux-gnu = $(BUILD_BASE_IMAGE_i686)
+BUILD_BASE_IMAGE_i686-w64-mingw32 = $(BUILD_BASE_IMAGE_i686)
+BUILD_BASE_IMAGE_x86_64-linux-gnu = $(BUILD_BASE_IMAGE_x86_64)
+BUILD_BASE_IMAGE_x86_64-w64-mingw32 = $(BUILD_BASE_IMAGE_x86_64)
 
 %.Dockerfile: %.Dockerfile.in
 	sed -re 's!@PROTONSDK_URLBASE@!$(PROTONSDK_URLBASE)!g' \
@@ -45,13 +51,13 @@ IMAGES_VERSION = stable
 	    -re 's!@MINGW_VERSION@!$(MINGW_VERSION)!g' \
 	    -re 's!@RUST_VERSION@!$(RUST_VERSION)!g' \
 	    -re 's!@LLVM_VERSION@!$(LLVM_VERSION)!g' \
-	    -re 's!@LLVM_MINGW_VERSION@!$(LLVM_MINGW_VERSION)!g' \
 	    $< >$@
 
 %-i686.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@ARCH@!i686!g' \
 	    -re 's!@ARCH_BASE@!i386!g' \
 	    -re 's!@ARCH_TINI@!i386!g' \
+	    -re 's!@ARCH_LLVM@!AArch64;ARM;RISCV;X86!g' \
 	    -re 's!@SIZEOF_VOIDP@!4!g' \
 	    $< >$@
 
@@ -59,16 +65,19 @@ IMAGES_VERSION = stable
 	sed -re 's!@ARCH@!x86_64!g' \
 	    -re 's!@ARCH_BASE@!x86_64!g' \
 	    -re 's!@ARCH_TINI@!amd64!g' \
+	    -re 's!@ARCH_LLVM@!AArch64;ARM;RISCV;X86!g' \
 	    -re 's!@SIZEOF_VOIDP@!8!g' \
 	    $< >$@
 
 %-linux-gnu.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@TARGET@!linux-gnu!g' \
+	    -re 's!@TARGET_SYSTEM@!Linux!g' \
 	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
 
 %-w64-mingw32.Dockerfile.in: %.Dockerfile.in
 	sed -re 's!@TARGET@!w64-mingw32!g' \
+	    -re 's!@TARGET_SYSTEM@!Windows!g' \
 	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
 
@@ -97,7 +106,7 @@ $(eval $(call create-build-base-rules,x86_64))
 define create-binutils-rules
 .PHONY: binutils-$(1)-$(2)
 all binutils: binutils-$(1)-$(2)
-binutils-$(1)-$(2): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
+binutils-$(1)-$(2): BASE_IMAGE = $(BUILD_BASE_IMAGE_$(1))
 binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
 	-$(DOCKER) pull $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
@@ -121,39 +130,45 @@ $(eval $(call create-binutils-rules,i686,linux-gnu))
 $(eval $(call create-binutils-rules,x86_64,w64-mingw32))
 $(eval $(call create-binutils-rules,x86_64,linux-gnu))
 
-define create-mingw-llvm-rules
-.PHONY: mingw-$(2)-$(1)
-all llvm: mingw-$(2)-$(1)
-mingw-$(2)-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
-mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
+define create-llvm-rules
+.PHONY: llvm$(2)-$(1)
+all llvm: llvm$(2)-$(1)
+llvm$(2)-$(1): BASE_IMAGE = $(BUILD_BASE_IMAGE_$(1))
+llvm$(2)-$(1): llvm$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-$(DOCKER) pull $(PROTONSDK_URLBASE)/mingw-llvm-$(1):$(LLVM_VERSION)
+	-$(DOCKER) pull $(PROTONSDK_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION)
 	$(DOCKER) build -f $$< \
-	  --cache-from=$(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION) \
-	  -t $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION) \
-	  -t $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest \
+	  --cache-from=$(PROTONSDK_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION) \
+	  -t $(PROTONSDK_URLBASE)/llvm$(2)-$(1):latest \
 	  build
-push-mingw-$(2)-$(1)::
-	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION)
-	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
-push:: push-mingw-$(2)-$(1)
-clean-mingw-$(2)-$(1)::
-	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION)
-	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
-clean:: clean-mingw-$(2)-$(1)
+push-llvm$(2)-$(1)::
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION)
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/llvm$(2)-$(1):latest
+push:: push-llvm$(2)-$(1)
+clean-llvm$(2)-$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/llvm$(2)-$(1):latest
+clean:: clean-llvm$(2)-$(1)
 endef
 
-$(eval $(call create-mingw-llvm-rules,i686,llvm))
-$(eval $(call create-mingw-llvm-rules,x86_64,llvm))
-$(eval $(call create-mingw-llvm-rules,i686,libcxx))
-$(eval $(call create-mingw-llvm-rules,x86_64,libcxx))
-$(eval $(call create-mingw-llvm-rules,i686,compiler-rt))
-$(eval $(call create-mingw-llvm-rules,x86_64,compiler-rt))
+$(eval $(call create-llvm-rules,i686))
+$(eval $(call create-llvm-rules,x86_64))
+
+$(eval $(call create-llvm-rules,i686-linux-gnu,-base))
+$(eval $(call create-llvm-rules,x86_64-linux-gnu,-base))
+$(eval $(call create-llvm-rules,i686-w64-mingw32,-base))
+$(eval $(call create-llvm-rules,x86_64-w64-mingw32,-base))
+
+$(eval $(call create-llvm-rules,i686-linux-gnu,-libcxx))
+$(eval $(call create-llvm-rules,x86_64-linux-gnu,-libcxx))
+$(eval $(call create-llvm-rules,i686-w64-mingw32,-libcxx))
+$(eval $(call create-llvm-rules,x86_64-w64-mingw32,-libcxx))
 
 define create-mingw-rules
 .PHONY: mingw-$(2)-$(1)
 all mingw: mingw-$(2)-$(1)
-mingw-$(2)-$(1): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
+mingw-$(2)-$(1): BASE_IMAGE = $(BUILD_BASE_IMAGE_$(1))
 mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 	rm -rf build; mkdir -p build
 	-$(DOCKER) pull $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
@@ -195,9 +210,7 @@ push-mingw-gcc-x86_64: push-mingw-gcc-$(GCC_VERSION)-x86_64
 clean-mingw-gcc-x86_64: clean-mingw-gcc-$(GCC_VERSION)-x86_64
 
 $(eval $(call create-mingw-rules,i686,crt-llvm))
-$(eval $(call create-mingw-rules,i686,pthreads-llvm))
 $(eval $(call create-mingw-rules,x86_64,crt-llvm))
-$(eval $(call create-mingw-rules,x86_64,pthreads-llvm))
 
 GCC_TARGET_FLAGS_w64-mingw32 = --disable-shared
 GCC_TARGET_FLAGS_linux-gnu =
@@ -206,7 +219,7 @@ define create-gcc-rules
 .PHONY: gcc-$(1)-$(2)
 all gcc: gcc-$(1)-$(2)
 gcc-$(1)-$(2): TARGET_FLAGS = $(GCC_TARGET_FLAGS_$(2))
-gcc-$(1)-$(2): BASE_IMAGE = $(PROTONSDK_URLBASE)/build-base-$(1):latest
+gcc-$(1)-$(2): BASE_IMAGE = $(BUILD_BASE_IMAGE_$(1))
 gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 	rm -rf build; mkdir -p build
 	-$(DOCKER) pull $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)

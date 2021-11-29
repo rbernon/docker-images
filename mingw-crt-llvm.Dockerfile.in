@@ -1,8 +1,13 @@
-FROM @PROTONSDK_URLBASE@/mingw-llvm-@ARCH@:@LLVM_VERSION@ AS mingw-llvm
 FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @PROTONSDK_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
+FROM @PROTONSDK_URLBASE@/llvm-base-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-base
+
 FROM @BASE_IMAGE@ AS build
-COPY --from=mingw-llvm    /opt/usr /usr
+
 COPY --from=mingw-headers /opt/usr /usr
+COPY --from=llvm          /opt/usr /usr
+COPY --from=llvm-base     /opt/usr /usr
+
 RUN wget -qO- https://github.com/mirror/mingw-w64/archive/v@MINGW_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/mingw-w64-@MINGW_VERSION@/mingw-w64-crt \
 && ./configure --quiet \
@@ -10,7 +15,7 @@ RUN wget -qO- https://github.com/mirror/mingw-w64/archive/v@MINGW_VERSION@.tar.g
   --host=@ARCH@-w64-mingw32 \
   --enable-wildcard \
   --with-default-msvcrt=ucrt \
-  MAKEINFO=true || cat config.log \
+  MAKEINFO=true \
 && make --quiet -j8 MAKEINFO=true \
 && make --quiet -j8 MAKEINFO=true install-strip DESTDIR=/opt \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \

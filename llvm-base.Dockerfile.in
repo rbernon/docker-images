@@ -1,0 +1,81 @@
+FROM @PROTONSDK_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
+FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+
+FROM @BASE_IMAGE@ AS build
+
+COPY --from=llvm          /opt/usr /usr
+COPY --from=mingw-headers /opt/usr /usr
+
+# From llvm-mingw:
+# Copyright (c) 2018 Martin Storsjo
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+RUN mkdir -p /opt/usr/bin/ \
+&& make_clang_wrapper() { \
+  echo >/opt/usr/bin/$1 "#!/bin/sh"; \
+  case "${1%-*}" in \
+    *-w64-*) echo >>/opt/usr/bin/$1 clang "--driver-mode=${1##*-}" "--target=${1%-*}" \
+               -rtlib=compiler-rt -unwindlib=libunwind -stdlib=libc++ -fuse-ld=lld \
+               -Qunused-arguments "--sysroot=/usr/${1%-*}" \"\$@\" ;; \
+    *)       echo >>/opt/usr/bin/$1 clang "--driver-mode=${1##*-}" "--target=${1%-*}" \
+               -rtlib=compiler-rt -unwindlib=libunwind -stdlib=libc++ -fuse-ld=lld \
+               -Qunused-arguments \"\$@\" ;; \
+  esac; \
+  chmod +x /opt/usr/bin/$1; \
+} \
+&& make_ld_wrapper() { \
+  echo >/opt/usr/bin/$1 "#!/bin/sh"; \
+  case "${1%-*}" in \
+    aarch64-w64*)  echo >>/opt/usr/bin/$1 ld.lld -m arm64pe \"\$@\" ;; \
+    armv7-w64*)    echo >>/opt/usr/bin/$1 ld.lld -m thumb2pe \"\$@\" ;; \
+    i686-w64*)     echo >>/opt/usr/bin/$1 ld.lld -m i386pe \"\$@\" ;; \
+    x86_64-w64*)   echo >>/opt/usr/bin/$1 ld.lld -m i386pep \"\$@\" ;; \
+    *)             echo >>/opt/usr/bin/$1 ld.lld \"\$@\" ;; \
+  esac; \
+  chmod +x /opt/usr/bin/$1; \
+} \
+&& ln -s llvm-ar /opt/usr/bin/@ARCH@-@TARGET@-ar \
+&& ln -s llvm-ar /opt/usr/bin/@ARCH@-@TARGET@-dlltool \
+&& ln -s llvm-ar /opt/usr/bin/@ARCH@-@TARGET@-ranlib \
+&& ln -s llvm-cxxfilt /opt/usr/bin/@ARCH@-@TARGET@-c++filt \
+&& ln -s llvm-nm /opt/usr/bin/@ARCH@-@TARGET@-nm \
+&& ln -s llvm-objcopy /opt/usr/bin/@ARCH@-@TARGET@-objcopy \
+&& ln -s llvm-objcopy /opt/usr/bin/@ARCH@-@TARGET@-strip \
+&& ln -s llvm-objdump /opt/usr/bin/@ARCH@-@TARGET@-objdump \
+&& ln -s llvm-rc /opt/usr/bin/@ARCH@-@TARGET@-windres \
+&& ln -s llvm-readobj /opt/usr/bin/@ARCH@-@TARGET@-readelf \
+&& ln -s llvm-size /opt/usr/bin/@ARCH@-@TARGET@-size \
+&& ln -s llvm-strings /opt/usr/bin/@ARCH@-@TARGET@-strings \
+&& ln -s llvm-symbolizer /opt/usr/bin/@ARCH@-@TARGET@-addr2line \
+&& make_clang_wrapper @ARCH@-@TARGET@-gcc \
+&& make_clang_wrapper @ARCH@-@TARGET@-g++ \
+&& make_clang_wrapper @ARCH@-@TARGET@-cpp \
+&& make_ld_wrapper @ARCH@-@TARGET@-ld \
+&& make_ld_wrapper @ARCH@-@TARGET@-ld.bfd \
+&& make_ld_wrapper @ARCH@-@TARGET@-ld.lld \
+&& cp /opt/usr / -r
+
+RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
+&& cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
+&& cmake -Bbuild -Hcompiler-rt/lib/builtins -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/@LLVM_VERSION@ \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_SYSTEM_NAME=@TARGET_SYSTEM@ \
+    -DCMAKE_C_COMPILER=@ARCH@-@TARGET@-gcc \
+    -DCMAKE_C_COMPILER_TARGET=@ARCH@-@TARGET@ \
+    -DCOMPILER_RT_DEFAULT_TARGET_ONLY=TRUE \
+    -DCOMPILER_RT_USE_BUILTINS_LIBRARY=TRUE \
+&& DESTDIR=/opt ninja -C build install \
+&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& rm -rf /tmp/llvm-project-llvmorg-@LLVM_VERSION@
