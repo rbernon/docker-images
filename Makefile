@@ -84,8 +84,11 @@ build-base-$(1): build-base-$(1).Dockerfile
 	  -t $(PROTONSDK_URLBASE)/build-base-$(1):latest \
 	  build
 push-build-base-$(1)::
-	$(DOCKER) push $(PROTONSDK_URLBASE)/build-base-$(1):latest
+	-$(DOCKER) push $(PROTONSDK_URLBASE)/build-base-$(1):latest
 push:: push-build-base-$(1)
+clean-build-base-$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/build-base-$(1):latest
+clean:: clean-build-base-$(1)
 endef
 
 $(eval $(call create-build-base-rules,i686))
@@ -107,6 +110,10 @@ push-binutils-$(1)-$(2)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):latest
 push:: push-binutils-$(1)-$(2)
+clean-binutils-$(1)-$(2)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/binutils-$(1)-$(2):latest
+clean:: clean-binutils-$(1)-$(2)
 endef
 
 $(eval $(call create-binutils-rules,i686,w64-mingw32))
@@ -130,6 +137,10 @@ push-mingw-$(2)-$(1)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
 push:: push-mingw-$(2)-$(1)
+clean-mingw-$(2)-$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(LLVM_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
+clean:: clean-mingw-$(2)-$(1)
 endef
 
 $(eval $(call create-mingw-llvm-rules,i686,llvm))
@@ -155,6 +166,10 @@ push-mingw-$(2)-$(1)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
 push:: push-mingw-$(2)-$(1)
+clean-mingw-$(2)-$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/mingw-$(2)-$(1):latest
+clean:: clean-mingw-$(2)-$(1)
 endef
 
 $(eval $(call create-mingw-rules,i686,headers))
@@ -173,9 +188,11 @@ mingw-gcc-$(GCC_VERSION).Dockerfile.in: mingw-gcc.Dockerfile.in
 
 mingw-gcc-i686: mingw-gcc-$(GCC_VERSION)-i686
 push-mingw-gcc-i686: push-mingw-gcc-$(GCC_VERSION)-i686
+clean-mingw-gcc-i686: clean-mingw-gcc-$(GCC_VERSION)-i686
 
 mingw-gcc-x86_64: mingw-gcc-$(GCC_VERSION)-x86_64
 push-mingw-gcc-x86_64: push-mingw-gcc-$(GCC_VERSION)-x86_64
+clean-mingw-gcc-x86_64: clean-mingw-gcc-$(GCC_VERSION)-x86_64
 
 $(eval $(call create-mingw-rules,i686,crt-llvm))
 $(eval $(call create-mingw-rules,i686,pthreads-llvm))
@@ -202,6 +219,10 @@ push-gcc-$(1)-$(2)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):latest
 push:: push-gcc-$(1)-$(2)
+clean-gcc-$(1)-$(2)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/gcc-$(1)-$(2):latest
+clean:: clean-gcc-$(1)-$(2)
 endef
 
 $(eval $(call create-gcc-rules,i686,linux-gnu))
@@ -229,6 +250,10 @@ push-proton$(1)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/proton$(1):latest
 push:: push-proton$(1)
+clean-proton$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/proton$(1):$(PROTONSDK_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/proton$(1):latest
+clean:: clean-proton$(1)
 endef
 
 $(eval $(call create-proton-rules,-base))
@@ -258,6 +283,10 @@ push-wine-$(1)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/wine-$(1):latest
 push:: push-wine-$(1)
+clean-wine-$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/wine-$(1):$(IMAGES_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/wine-$(1):latest
+clean:: clean-wine-$(1)
 endef
 
 $(eval $(call create-wine-rules,base-i686))
@@ -283,6 +312,10 @@ push-devel-$(1)::
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/devel-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(PROTONSDK_URLBASE)/devel-$(1):latest
 push:: push-devel-$(1)
+clean-devel-$(1)::
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/devel-$(1):$(IMAGES_VERSION)
+	-$(DOCKER) image rm $(PROTONSDK_URLBASE)/devel-$(1):latest
+clean:: clean-devel-$(1)
 endef
 
 $(eval $(call create-devel-rules,i686))
