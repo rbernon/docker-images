@@ -10,7 +10,7 @@ COPY --from=binutils      /opt/usr /usr
 COPY --from=mingw-gcc     /opt/usr /usr
 COPY --from=mingw-crt     /opt/usr /usr
 
-RUN wget -qO- https://github.com/mirror/mingw-w64/archive/v@MINGW_VERSION@.tar.gz | tar xzf - -C /tmp \
+RUN wget --no-check-certificate -qO- https://github.com/mirror/mingw-w64/archive/v@MINGW_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/mingw-w64-@MINGW_VERSION@/mingw-w64-libraries/winpthreads \
 && ./configure --quiet \
   --prefix=/usr/@ARCH@-w64-mingw32/ \

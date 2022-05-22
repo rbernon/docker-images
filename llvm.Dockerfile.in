@@ -1,6 +1,6 @@
 FROM @BASE_IMAGE@ AS build
 
-RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
+RUN wget --no-check-certificate -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
 && cmake -Bbuild -Hllvm -GNinja \
     -DCMAKE_BUILD_TYPE=Release \

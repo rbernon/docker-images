@@ -1,6 +1,7 @@
 FROM @BASE_IMAGE@ AS base
 RUN apt-get update && apt-get install -y \
   autoconf \
+  bison \
   bzip2 \
   cmake \
   g++ \

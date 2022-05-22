@@ -7,7 +7,7 @@ COPY --from=binutils       /opt/usr /usr
 COPY --from=mingw-headers  /opt/usr /usr
 COPY --from=mingw-crt      /opt/usr /usr
 COPY --from=mingw-pthreads /opt/usr /usr
-RUN wget -qO- http://ftp.gnu.org/gnu/gcc/gcc-@GCC_VERSION@/gcc-@GCC_VERSION@.tar.xz | tar xJf - -C /tmp \
+RUN wget --no-check-certificate -qO- http://ftp.gnu.org/gnu/gcc/gcc-@GCC_VERSION@/gcc-@GCC_VERSION@.tar.xz | tar xJf - -C /tmp \
 && mkdir /tmp/gcc-@GCC_VERSION@/build && cd /tmp/gcc-@GCC_VERSION@/build \
 && ../configure --quiet \
   --prefix=/usr \

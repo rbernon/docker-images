@@ -25,7 +25,7 @@ COPY --from=mingw-crt      /opt/usr /usr
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
+RUN wget --no-check-certificate -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
 && cmake -Bbuild-libcxx -Hruntimes -GNinja \
    -DCMAKE_INSTALL_PREFIX=/usr/@ARCH@-@TARGET@ \

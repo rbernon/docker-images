@@ -1,5 +1,5 @@
 FROM @BASE_IMAGE@ AS build
-RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-@BINUTILS_VERSION@.tar.xz | tar xJf - -C /tmp \
+RUN wget --no-check-certificate -qO- https://ftp.gnu.org/gnu/binutils/binutils-@BINUTILS_VERSION@.tar.xz | tar xJf - -C /tmp \
 && cd /tmp/binutils-@BINUTILS_VERSION@ \
 && ./configure --quiet \
   --prefix=/usr \

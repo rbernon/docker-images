@@ -1,4 +1,4 @@
-STEAMRT_VERSION = 0.20220329.0
+STEAMRT_VERSION = 0.20221017.1
 STEAMRT_URLBASE = registry.gitlab.steamos.cloud
 
 IMAGES_URLBASE = docker.io/rbernon
@@ -28,11 +28,11 @@ push:: push-steamrt
 BASE_IMAGE_i686 = docker.io/i386/debian:10
 BASE_IMAGE_x86_64 = docker.io/amd64/debian:10
 
-BINUTILS_VERSION = 2.37
-GCC_VERSION = 12.1.0
+BINUTILS_VERSION = 2.39
+GCC_VERSION = 12.2.0
 MINGW_VERSION = 10.0.0
 RUST_VERSION = 1.61.0
-LLVM_VERSION = 14.0.0
+LLVM_VERSION = 15.0.0
 
 IMAGES_VERSION = experimental
 
