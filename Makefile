@@ -1,7 +1,7 @@
-STEAMRT_VERSION = 0.20210920.0
+STEAMRT_VERSION = 0.20220329.0
 STEAMRT_URLBASE = registry.gitlab.steamos.cloud
 
-PROTONSDK_URLBASE = rbernon
+PROTONSDK_URLBASE = docker.io/rbernon
 PROTONSDK_VERSION = $(STEAMRT_VERSION)-0
 
 DOCKER = docker
@@ -25,14 +25,14 @@ push:: push-steamrt
 # this is just for building toolchain, as we do static builds it should
 # not have any impact on the end result, but changing it will invalidate
 # docker caches, so we need something that don't change much
-BASE_IMAGE_i686 = i386/debian:10
-BASE_IMAGE_x86_64 = debian:10
+BASE_IMAGE_i686 = docker.io/i386/debian:10
+BASE_IMAGE_x86_64 = docker.io/amd64/debian:10
 
 BINUTILS_VERSION = 2.37
-GCC_VERSION = 11.2.0
-MINGW_VERSION = 9.0.0
-RUST_VERSION = 1.55.0
-LLVM_VERSION = 13.0.0
+GCC_VERSION = 12.1.0
+MINGW_VERSION = 10.0.0
+RUST_VERSION = 1.61.0
+LLVM_VERSION = 14.0.0
 
 IMAGES_VERSION = experimental
 
@@ -273,8 +273,8 @@ $(eval $(call create-proton-rules,-base))
 $(eval $(call create-proton-rules,))
 $(eval $(call create-proton-rules,-llvm))
 
-WINE_BASE_IMAGE_base-i686 = i386/debian:unstable
-WINE_BASE_IMAGE_base-x86_64 = debian:unstable
+WINE_BASE_IMAGE_base-i686 = docker.io/i386/debian:unstable
+WINE_BASE_IMAGE_base-x86_64 = docker.io/amd64/debian:unstable
 WINE_BASE_IMAGE_i686 = $(PROTONSDK_URLBASE)/wine-base-i686:$(IMAGES_VERSION)
 WINE_BASE_IMAGE_x86_64 = $(PROTONSDK_URLBASE)/wine-base-x86_64:$(IMAGES_VERSION)
 WINE_BASE_IMAGE_llvm-i686 = $(PROTONSDK_URLBASE)/wine-base-i686:$(IMAGES_VERSION)

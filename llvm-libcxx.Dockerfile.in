@@ -37,6 +37,7 @@ RUN wget -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION
    -DCMAKE_CXX_COMPILER_TARGET=@ARCH@-@TARGET@ \
    -DCMAKE_EXE_LINKER_FLAGS="-nostdlib++ -unwindlib=" \
    -DCMAKE_SHARED_LINKER_FLAGS="-unwindlib=" \
+   -DCMAKE_CXX_FLAGS="-fPIC" \
    -DLLVM_ENABLE_RUNTIMES="libunwind;libcxxabi;libcxx" \
    -DHAVE_CXX_ATOMICS_WITHOUT_LIB=ON \
    -DHAVE_CXX_ATOMICS64_WITHOUT_LIB=ON \
