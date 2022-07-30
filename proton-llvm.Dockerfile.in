@@ -1,5 +1,5 @@
-FROM @PROTONSDK_URLBASE@/mingw-headers-i686:@MINGW_VERSION@ AS mingw-headers-i686
-FROM @PROTONSDK_URLBASE@/mingw-headers-x86_64:@MINGW_VERSION@ AS mingw-headers-x86_64
+FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-i686:@MINGW_VERSION@ AS mingw-headers-i686
+FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-x86_64:@MINGW_VERSION@ AS mingw-headers-x86_64
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-i686:@MINGW_VERSION@ AS mingw-crt-llvm-i686
 FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-x86_64:@MINGW_VERSION@ AS mingw-crt-llvm-x86_64
 FROM @PROTONSDK_URLBASE@/mingw-widl-i686:@MINGW_VERSION@ AS mingw-widl-i686

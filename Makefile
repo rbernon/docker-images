@@ -209,6 +209,8 @@ mingw-gcc-x86_64: mingw-gcc-$(GCC_VERSION)-x86_64
 push-mingw-gcc-x86_64: push-mingw-gcc-$(GCC_VERSION)-x86_64
 clean-mingw-gcc-x86_64: clean-mingw-gcc-$(GCC_VERSION)-x86_64
 
+$(eval $(call create-mingw-rules,i686,headers-llvm))
+$(eval $(call create-mingw-rules,x86_64,headers-llvm))
 $(eval $(call create-mingw-rules,i686,crt-llvm))
 $(eval $(call create-mingw-rules,x86_64,crt-llvm))
 
