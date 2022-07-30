@@ -13,525 +13,283 @@ jobs:
       - name: Push
         run: make push-steamrt
 
-  build-base-i686:
+  matrix:
     runs-on: ubuntu-latest
+    env:
+      archs: '["i686", "x86_64"]'
+      targets: '["linux-gnu", "w64-mingw32"]'
+    outputs:
+      archs: ${{ steps.set-matrix.outputs.archs }}
+      targets: ${{ steps.set-matrix.outputs.targets }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make build-base-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-build-base-i686
+    - id: set-matrix
+      run: |
+        echo '::set-output name=archs::${{ env.archs }}'
+        echo '::set-output name=targets::${{ env.targets }}'
 
-  build-base-x86_64:
+  build-base:
     runs-on: ubuntu-latest
+    needs: [matrix]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make build-base-x86_64
+        run: make build-base-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-build-base-x86_64
+        run: make push-build-base-${{ matrix.arch }}
 
-  binutils-i686-linux-gnu:
-    needs: build-base-i686
+  binutils:
     runs-on: ubuntu-latest
+    needs: [matrix, build-base]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
+        target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make binutils-i686-linux-gnu
+        run: make binutils-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-binutils-i686-linux-gnu
+        run: make push-binutils-${{ matrix.arch }}-${{ matrix.target }}
 
-  binutils-i686-w64-mingw32:
-    needs: build-base-i686
+  mingw-widl:
     runs-on: ubuntu-latest
+    needs: [matrix, build-base]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make binutils-i686-w64-mingw32
+        run: make mingw-widl-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-binutils-i686-w64-mingw32
+        run: make push-mingw-widl-${{ matrix.arch }}
 
-  binutils-x86_64-linux-gnu:
-    needs: build-base-x86_64
+  mingw-headers:
     runs-on: ubuntu-latest
+    needs: [matrix, build-base]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make binutils-x86_64-linux-gnu
+        run: make mingw-headers-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-binutils-x86_64-linux-gnu
+        run: make push-mingw-headers-${{ matrix.arch }}
 
-  binutils-x86_64-w64-mingw32:
-    needs: build-base-x86_64
+  mingw-headers-llvm:
     runs-on: ubuntu-latest
+    needs: [matrix, build-base]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make binutils-x86_64-w64-mingw32
+        run: make mingw-headers-llvm-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-binutils-x86_64-w64-mingw32
+        run: make push-mingw-headers-llvm-${{ matrix.arch }}
 
-  mingw-widl-i686:
-    needs: build-base-i686
+  mingw-gcc:
     runs-on: ubuntu-latest
+    needs: [matrix, binutils, mingw-headers]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-widl-i686
+        run: make mingw-gcc-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-widl-i686
+        run: make push-mingw-gcc-${{ matrix.arch }}
 
-  mingw-widl-x86_64:
-    needs: build-base-x86_64
+  llvm:
+    needs: [matrix, build-base]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-widl-x86_64
+        run: make llvm-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-widl-x86_64
+        run: make push-llvm-${{ matrix.arch }}
 
-  mingw-headers-i686:
-    needs: build-base-i686
+  llvm-base:
+    needs: [matrix, llvm, mingw-headers-llvm]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
+        target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-headers-i686
+        run: make llvm-base-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-headers-i686
+        run: make push-llvm-base-${{ matrix.arch }}-${{ matrix.target }}
 
-  mingw-headers-x86_64:
-    needs: build-base-x86_64
+  mingw-crt:
     runs-on: ubuntu-latest
+    needs: [matrix, mingw-gcc]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-headers-x86_64
+        run: make mingw-crt-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-headers-x86_64
+        run: make push-mingw-crt-${{ matrix.arch }}
 
-  mingw-headers-llvm-i686:
-    needs: build-base-i686
+  mingw-crt-llvm:
     runs-on: ubuntu-latest
+    needs: [matrix, llvm-base]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-headers-llvm-i686
+        run: make mingw-crt-llvm-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-headers-llvm-i686
+        run: make push-mingw-crt-llvm-${{ matrix.arch }}
 
-  mingw-headers-llvm-x86_64:
-    needs: build-base-x86_64
+  mingw-pthreads:
     runs-on: ubuntu-latest
+    needs: [matrix, mingw-crt]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-headers-llvm-x86_64
+        run: make mingw-pthreads-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-headers-llvm-x86_64
+        run: make push-mingw-pthreads-${{ matrix.arch }}
 
-  mingw-gcc-i686:
-    needs: [binutils-i686-w64-mingw32, mingw-headers-i686]
+  llvm-libcxx:
     runs-on: ubuntu-latest
+    needs: [matrix, llvm-base, mingw-crt-llvm]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
+        target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-gcc-i686
+        run: make llvm-libcxx-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-gcc-i686
+        run: make push-llvm-libcxx-${{ matrix.arch }}-${{ matrix.target }}
 
-  mingw-gcc-x86_64:
-    needs: [binutils-x86_64-w64-mingw32, mingw-headers-x86_64]
+  gcc:
     runs-on: ubuntu-latest
+    needs: [matrix, binutils, mingw-pthreads]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
+        target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make mingw-gcc-x86_64
+        run: make gcc-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-mingw-gcc-x86_64
+        run: make push-gcc-${{ matrix.arch }}-${{ matrix.target }}
 
-  llvm-i686:
-    needs: [build-base-i686, mingw-headers-llvm-i686]
+  wine-base:
     runs-on: ubuntu-latest
+    needs: [matrix]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make llvm-i686
+        run: make wine-base-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-llvm-i686
+        run: make push-wine-base-${{ matrix.arch }}
 
-  llvm-x86_64:
-    needs: [build-base-x86_64, mingw-headers-llvm-x86_64]
+  wine:
     runs-on: ubuntu-latest
+    needs: [matrix, wine-base, gcc, mingw-widl]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make llvm-x86_64
+        run: make wine-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-llvm-x86_64
+        run: make push-wine-${{ matrix.arch }}
 
-  llvm-base-i686-linux-gnu:
-    needs: [llvm-i686, mingw-headers-llvm-i686]
+  wine-llvm:
     runs-on: ubuntu-latest
+    needs: [matrix, wine-base, llvm-libcxx, mingw-widl]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make llvm-base-i686-linux-gnu
+        run: make wine-llvm-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-llvm-base-i686-linux-gnu
-
-  llvm-base-i686-w64-mingw32:
-    needs: [llvm-i686, mingw-headers-llvm-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-base-i686-w64-mingw32
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-base-i686-w64-mingw32
-
-  llvm-base-x86_64-linux-gnu:
-    needs: [llvm-x86_64, mingw-headers-llvm-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-base-x86_64-linux-gnu
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-base-x86_64-linux-gnu
-
-  llvm-base-x86_64-w64-mingw32:
-    needs: [llvm-x86_64, mingw-headers-llvm-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-base-x86_64-w64-mingw32
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-base-x86_64-w64-mingw32
-
-  mingw-crt-i686:
-    needs: mingw-gcc-i686
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-crt-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-crt-i686
-
-  mingw-crt-x86_64:
-    needs: mingw-gcc-x86_64
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-crt-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-crt-x86_64
-
-  mingw-crt-llvm-i686:
-    needs: llvm-base-i686-w64-mingw32
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-crt-llvm-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-crt-llvm-i686
-
-  mingw-crt-llvm-x86_64:
-    needs: llvm-base-x86_64-w64-mingw32
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-crt-llvm-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-crt-llvm-x86_64
-
-  mingw-pthreads-i686:
-    needs: mingw-crt-i686
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-pthreads-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-pthreads-i686
-
-  mingw-pthreads-x86_64:
-    needs: mingw-crt-x86_64
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make mingw-pthreads-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-mingw-pthreads-x86_64
-
-  llvm-libcxx-i686-linux-gnu:
-    needs: [llvm-base-i686-linux-gnu, mingw-crt-llvm-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-libcxx-i686-linux-gnu
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-libcxx-i686-linux-gnu
-
-  llvm-libcxx-i686-w64-mingw32:
-    needs: [llvm-base-i686-w64-mingw32, mingw-crt-llvm-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-libcxx-i686-w64-mingw32
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-libcxx-i686-w64-mingw32
-
-  llvm-libcxx-x86_64-linux-gnu:
-    needs: [llvm-base-x86_64-linux-gnu, mingw-crt-llvm-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-libcxx-x86_64-linux-gnu
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-libcxx-x86_64-linux-gnu
-
-  llvm-libcxx-x86_64-w64-mingw32:
-    needs: [llvm-base-x86_64-w64-mingw32, mingw-crt-llvm-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make llvm-libcxx-x86_64-w64-mingw32
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-llvm-libcxx-x86_64-w64-mingw32
-
-  gcc-i686-linux-gnu:
-    needs: [binutils-i686-linux-gnu, mingw-pthreads-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make gcc-i686-linux-gnu
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-gcc-i686-linux-gnu
-
-  gcc-i686-w64-mingw32:
-    needs: [binutils-i686-w64-mingw32, mingw-pthreads-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make gcc-i686-w64-mingw32
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-gcc-i686-w64-mingw32
-
-  gcc-x86_64-linux-gnu:
-    needs: [binutils-x86_64-linux-gnu, mingw-pthreads-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make gcc-x86_64-linux-gnu
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-gcc-x86_64-linux-gnu
-
-  gcc-x86_64-w64-mingw32:
-    needs: [binutils-x86_64-w64-mingw32, mingw-pthreads-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make gcc-x86_64-w64-mingw32
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-gcc-x86_64-w64-mingw32
-
-  wine-base-i686:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make wine-base-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-wine-base-i686
-
-  wine-base-x86_64:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make wine-base-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-wine-base-x86_64
-
-  wine-i686:
-    needs: [wine-base-i686, gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make wine-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-wine-i686
-
-  wine-x86_64:
-    needs: [wine-base-x86_64, gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, mingw-widl-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make wine-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-wine-x86_64
-
-  wine-llvm-i686:
-    needs: [wine-base-i686, llvm-libcxx-i686-linux-gnu, llvm-libcxx-i686-w64-mingw32, mingw-widl-i686]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make wine-llvm-i686
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-wine-llvm-i686
-
-  wine-llvm-x86_64:
-    needs: [wine-base-x86_64, llvm-libcxx-x86_64-linux-gnu, llvm-libcxx-x86_64-w64-mingw32, mingw-widl-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make wine-llvm-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-wine-llvm-x86_64
+        run: make push-wine-llvm-${{ matrix.arch }}
 
   proton-base:
-    needs: [steamrt]
     runs-on: ubuntu-latest
+    needs: [steamrt]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -543,8 +301,8 @@ jobs:
         run: make push-proton-base
 
   proton:
-    needs: [proton-base, gcc-x86_64-linux-gnu, gcc-x86_64-w64-mingw32, gcc-i686-linux-gnu, gcc-i686-w64-mingw32, mingw-widl-i686, mingw-widl-x86_64]
     runs-on: ubuntu-latest
+    needs: [proton-base, gcc, mingw-widl]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -556,8 +314,8 @@ jobs:
         run: make push-proton
 
   proton-llvm:
-    needs: [proton-base, llvm-libcxx-x86_64-linux-gnu, llvm-libcxx-x86_64-w64-mingw32, llvm-libcxx-i686-linux-gnu, llvm-libcxx-i686-w64-mingw32, mingw-widl-i686, mingw-widl-x86_64]
     runs-on: ubuntu-latest
+    needs: [proton-base, llvm-libcxx, mingw-widl]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -568,28 +326,18 @@ jobs:
       - name: Push
         run: make push-proton-llvm
 
-  devel-i686:
-    needs: [wine-i686]
+  devel:
     runs-on: ubuntu-latest
+    needs: [matrix, wine]
+    strategy:
+      matrix:
+        arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: make devel-i686
+        run: make devel-${{ matrix.arch }}
       - name: Login
         run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push
-        run: make push-devel-i686
-
-  devel-x86_64:
-    needs: [wine-x86_64]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: make devel-x86_64
-      - name: Login
-        run: echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push
-        run: make push-devel-x86_64
+        run: make push-devel-${{ matrix.arch }}
