@@ -1,11 +1,11 @@
-FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
-FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils-mingw
-FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
-FROM @PROTONSDK_URLBASE@/mingw-crt-@ARCH@:@MINGW_VERSION@ AS mingw-crt
-FROM @PROTONSDK_URLBASE@/mingw-pthreads-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
-FROM @PROTONSDK_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
-FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
-FROM @PROTONSDK_URLBASE@/gcc-@ARCH@-w64-mingw32:@GCC_VERSION@ AS gcc-mingw
+FROM @IMAGES_URLBASE@/binutils-@ARCH@-linux-gnu:@BINUTILS_VERSION@ AS binutils-linux
+FROM @IMAGES_URLBASE@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils-mingw
+FROM @IMAGES_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @IMAGES_URLBASE@/mingw-crt-@ARCH@:@MINGW_VERSION@ AS mingw-crt
+FROM @IMAGES_URLBASE@/mingw-pthreads-@ARCH@:@MINGW_VERSION@ AS mingw-pthreads
+FROM @IMAGES_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
+FROM @IMAGES_URLBASE@/gcc-@ARCH@-linux-gnu:@GCC_VERSION@ AS gcc-linux
+FROM @IMAGES_URLBASE@/gcc-@ARCH@-w64-mingw32:@GCC_VERSION@ AS gcc-mingw
 
 FROM @BASE_IMAGE@ AS base
 

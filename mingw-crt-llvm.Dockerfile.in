@@ -1,6 +1,6 @@
-FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
-FROM @PROTONSDK_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
-FROM @PROTONSDK_URLBASE@/llvm-base-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-base
+FROM @IMAGES_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @IMAGES_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
+FROM @IMAGES_URLBASE@/llvm-base-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-base
 
 FROM @BASE_IMAGE@ AS build
 

@@ -1,5 +1,5 @@
-FROM @PROTONSDK_URLBASE@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils
-FROM @PROTONSDK_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @IMAGES_URLBASE@/binutils-@ARCH@-w64-mingw32:@BINUTILS_VERSION@ AS binutils
+FROM @IMAGES_URLBASE@/mingw-headers-@ARCH@:@MINGW_VERSION@ AS mingw-headers
 FROM @BASE_IMAGE@ AS build
 COPY --from=binutils      /opt/usr /usr
 COPY --from=mingw-headers /opt/usr /usr

@@ -1,11 +1,11 @@
-FROM @PROTONSDK_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
-FROM @PROTONSDK_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt-llvm
-FROM @PROTONSDK_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
-FROM @PROTONSDK_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
-FROM @PROTONSDK_URLBASE@/llvm-base-@ARCH@-linux-gnu:@LLVM_VERSION@ AS llvm-base-linux
-FROM @PROTONSDK_URLBASE@/llvm-base-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-base-mingw
-FROM @PROTONSDK_URLBASE@/llvm-libcxx-@ARCH@-linux-gnu:@LLVM_VERSION@ AS llvm-libcxx-linux
-FROM @PROTONSDK_URLBASE@/llvm-libcxx-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-libcxx-mingw
+FROM @IMAGES_URLBASE@/mingw-headers-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-headers
+FROM @IMAGES_URLBASE@/mingw-crt-llvm-@ARCH@:@MINGW_VERSION@ AS mingw-crt-llvm
+FROM @IMAGES_URLBASE@/mingw-widl-@ARCH@:@MINGW_VERSION@ AS mingw-widl
+FROM @IMAGES_URLBASE@/llvm-@ARCH@:@LLVM_VERSION@ AS llvm
+FROM @IMAGES_URLBASE@/llvm-base-@ARCH@-linux-gnu:@LLVM_VERSION@ AS llvm-base-linux
+FROM @IMAGES_URLBASE@/llvm-base-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-base-mingw
+FROM @IMAGES_URLBASE@/llvm-libcxx-@ARCH@-linux-gnu:@LLVM_VERSION@ AS llvm-libcxx-linux
+FROM @IMAGES_URLBASE@/llvm-libcxx-@ARCH@-w64-mingw32:@LLVM_VERSION@ AS llvm-libcxx-mingw
 
 FROM @BASE_IMAGE@ AS base
 
