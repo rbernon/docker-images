@@ -1,5 +1,12 @@
 FROM @BASE_IMAGE@ AS base
-RUN apt-get update && apt-get install -y \
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo '' > /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
+&& echo 'path-exclude=/usr/share/doc/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
+&& echo 'path-exclude=/usr/share/info/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
+&& echo 'path-exclude=/usr/share/locale/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
+&& echo 'path-exclude=/usr/share/man/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
+&& echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf \
+&& apt-get update && apt-get install -y \
   autoconf \
   bison \
   bzip2 \
@@ -19,5 +26,5 @@ RUN apt-get update && apt-get install -y \
   python3-distutils \
   wget \
   xz-utils \
-&& rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
+&& apt-get clean \
 && rm -rf /var/lib/apt/lists/*
