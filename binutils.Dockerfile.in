@@ -23,8 +23,8 @@ RUN wget --no-check-certificate -qO- https://ftp.gnu.org/gnu/binutils/binutils-@
   --with-mpfr \
   --with-system-zlib \
   MAKEINFO=true \
-&& make --quiet -j8 MAKEINFO=true configure-host \
-&& make --quiet -j8 MAKEINFO=true LDFLAGS="-static" \
-&& make --quiet -j8 MAKEINFO=true install-strip DESTDIR=/opt \
+&& make --quiet -j$(nproc) MAKEINFO=true configure-host \
+&& make --quiet -j$(nproc) MAKEINFO=true LDFLAGS="-static" \
+&& make --quiet -j$(nproc) MAKEINFO=true install-strip DESTDIR=/opt \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /tmp/binutils-@BINUTILS_VERSION@

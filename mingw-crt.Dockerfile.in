@@ -17,6 +17,6 @@ RUN wget --no-check-certificate -qO- https://github.com/mirror/mingw-w64/archive
   --with-default-msvcrt=ucrt \
   MAKEINFO=true \
 && make --quiet MAKEINFO=true \
-&& make --quiet -j8 MAKEINFO=true install-strip DESTDIR=/opt \
+&& make --quiet -j$(nproc) MAKEINFO=true install-strip DESTDIR=/opt \
 && rm -rf /opt/usr/share/doc /opt/usr/share/info /opt/usr/share/man \
 && rm -rf /tmp/mingw-w64-@MINGW_VERSION@
