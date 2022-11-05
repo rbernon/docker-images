@@ -94,10 +94,12 @@ build-base-$(1): build-base-$(1).Dockerfile
 	  build
 push-build-base-$(1)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/build-base-$(1):latest
-push:: push-build-base-$(1)
+push-build-base:: push-build-base-$(1)
+push:: push-build-base
 clean-build-base-$(1)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/build-base-$(1):latest
-clean:: clean-build-base-$(1)
+clean-build-base:: clean-build-base-$(1)
+clean:: clean-build-base
 endef
 
 $(eval $(call create-build-base-rules,i686))
@@ -118,11 +120,13 @@ binutils-$(1)-$(2): binutils-$(1)-$(2).Dockerfile
 push-binutils-$(1)-$(2)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/binutils-$(1)-$(2):latest
-push:: push-binutils-$(1)-$(2)
+push-binutils:: push-binutils-$(1)-$(2)
+push:: push-binutils
 clean-binutils-$(1)-$(2)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/binutils-$(1)-$(2):$(BINUTILS_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/binutils-$(1)-$(2):latest
-clean:: clean-binutils-$(1)-$(2)
+clean-binutils:: clean-binutils-$(1)-$(2)
+clean:: clean-binutils
 endef
 
 $(eval $(call create-binutils-rules,i686,w64-mingw32))
@@ -145,11 +149,13 @@ llvm$(2)-$(1): llvm$(2)-$(1).Dockerfile
 push-llvm$(2)-$(1)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/llvm$(2)-$(1):latest
-push:: push-llvm$(2)-$(1)
+push-llvm:: push-llvm$(2)-$(1)
+push:: push-llvm
 clean-llvm$(2)-$(1)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/llvm$(2)-$(1):$(LLVM_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/llvm$(2)-$(1):latest
-clean:: clean-llvm$(2)-$(1)
+clean-llvm:: clean-llvm$(2)-$(1)
+clean:: clean-llvm
 endef
 
 $(eval $(call create-llvm-rules,i686))
@@ -180,11 +186,13 @@ mingw-$(2)-$(1): mingw-$(2)-$(1).Dockerfile
 push-mingw-$(2)-$(1)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/mingw-$(2)-$(1):latest
-push:: push-mingw-$(2)-$(1)
+push-mingw:: push-mingw-$(2)-$(1)
+push:: push-mingw
 clean-mingw-$(2)-$(1)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/mingw-$(2)-$(1):$(MINGW_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/mingw-$(2)-$(1):latest
-clean:: clean-mingw-$(2)-$(1)
+clean-mingw:: clean-mingw-$(2)-$(1)
+clean:: clean-mingw
 endef
 
 $(eval $(call create-mingw-rules,i686,headers))
@@ -233,11 +241,13 @@ gcc-$(1)-$(2): gcc-$(1)-$(2).Dockerfile
 push-gcc-$(1)-$(2)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/gcc-$(1)-$(2):latest
-push:: push-gcc-$(1)-$(2)
+push-gcc:: push-gcc-$(1)-$(2)
+push:: push-gcc
 clean-gcc-$(1)-$(2)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/gcc-$(1)-$(2):$(GCC_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/gcc-$(1)-$(2):latest
-clean:: clean-gcc-$(1)-$(2)
+clean-gcc:: clean-gcc-$(1)-$(2)
+clean:: clean-gcc
 endef
 
 $(eval $(call create-gcc-rules,i686,linux-gnu))
@@ -264,11 +274,13 @@ proton$(1): proton$(1).Dockerfile
 push-proton$(1)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/proton$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/proton$(1):latest
-push:: push-proton$(1)
+push-proton:: push-proton$(1)
+push:: push-proton
 clean-proton$(1)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/proton$(1):$(IMAGES_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/proton$(1):latest
-clean:: clean-proton$(1)
+clean-proton:: clean-proton$(1)
+clean:: clean-proton
 endef
 
 $(eval $(call create-proton-rules,-base))
@@ -297,11 +309,13 @@ wine-$(1): wine-$(1).Dockerfile
 push-wine-$(1)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/wine-$(1):latest
-push:: push-wine-$(1)
+push-wine:: push-wine-$(1)
+push:: push-wine
 clean-wine-$(1)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/wine-$(1):latest
-clean:: clean-wine-$(1)
+clean-wine:: clean-wine-$(1)
+clean:: clean-wine
 endef
 
 $(eval $(call create-wine-rules,base-i686))
@@ -326,11 +340,13 @@ devel-$(1): devel-$(1).Dockerfile
 push-devel-$(1)::
 	-$(DOCKER) push $(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) push $(IMAGES_URLBASE)/devel-$(1):latest
-push:: push-devel-$(1)
+push-devel:: push-devel-$(1)
+push:: push-devel
 clean-devel-$(1)::
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION)
 	-$(DOCKER) image rm $(IMAGES_URLBASE)/devel-$(1):latest
-clean:: clean-devel-$(1)
+clean-devel:: clean-devel-$(1)
+clean:: clean-devel
 endef
 
 $(eval $(call create-devel-rules,i686))
