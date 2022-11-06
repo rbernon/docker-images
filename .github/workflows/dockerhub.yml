@@ -16,16 +16,16 @@ jobs:
   matrix:
     runs-on: ubuntu-latest
     env:
-      archs: '["i686", "x86_64"]'
-      targets: '["linux-gnu", "w64-mingw32"]'
+      archs: '[\"i686\", \"x86_64\"]'
+      targets: '[\"linux-gnu\", \"w64-mingw32\"]'
     outputs:
       archs: ${{ steps.set-matrix.outputs.archs }}
       targets: ${{ steps.set-matrix.outputs.targets }}
     steps:
     - id: set-matrix
       run: |
-        echo '::set-output name=archs::${{ env.archs }}'
-        echo '::set-output name=targets::${{ env.targets }}'
+        echo archs="${{ env.archs }}" >> $GITHUB_OUTPUT
+        echo targets="${{ env.targets }}" >> $GITHUB_OUTPUT
 
   build-base:
     runs-on: ubuntu-latest
