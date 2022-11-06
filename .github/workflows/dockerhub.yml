@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make steamrt
       - name: Login
@@ -35,7 +35,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make build-base-${{ matrix.arch }}
       - name: Login
@@ -52,7 +52,7 @@ jobs:
         target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make binutils-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
@@ -68,7 +68,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-widl-${{ matrix.arch }}
       - name: Login
@@ -84,7 +84,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-headers-${{ matrix.arch }}
       - name: Login
@@ -100,7 +100,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-headers-llvm-${{ matrix.arch }}
       - name: Login
@@ -116,7 +116,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-gcc-${{ matrix.arch }}
       - name: Login
@@ -132,7 +132,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make llvm-${{ matrix.arch }}
       - name: Login
@@ -149,7 +149,7 @@ jobs:
         target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make llvm-base-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
@@ -165,7 +165,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-crt-${{ matrix.arch }}
       - name: Login
@@ -181,7 +181,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-crt-llvm-${{ matrix.arch }}
       - name: Login
@@ -197,7 +197,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make mingw-pthreads-${{ matrix.arch }}
       - name: Login
@@ -214,7 +214,7 @@ jobs:
         target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make llvm-libcxx-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
@@ -231,7 +231,7 @@ jobs:
         target: ${{ fromJson(needs.matrix.outputs.targets) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make gcc-${{ matrix.arch }}-${{ matrix.target }}
       - name: Login
@@ -247,7 +247,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make wine-base-${{ matrix.arch }}
       - name: Login
@@ -263,7 +263,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make wine-${{ matrix.arch }}
       - name: Login
@@ -279,7 +279,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make wine-llvm-${{ matrix.arch }}
       - name: Login
@@ -292,7 +292,7 @@ jobs:
     needs: [steamrt]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make proton-base
       - name: Login
@@ -305,7 +305,7 @@ jobs:
     needs: [proton-base, gcc, mingw-widl]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make proton
       - name: Login
@@ -318,7 +318,7 @@ jobs:
     needs: [proton-base, llvm-libcxx, mingw-widl]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make proton-llvm
       - name: Login
@@ -334,7 +334,7 @@ jobs:
         arch: ${{ fromJson(needs.matrix.outputs.archs) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build
         run: make devel-${{ matrix.arch }}
       - name: Login
