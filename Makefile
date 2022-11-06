@@ -43,7 +43,7 @@ BUILD_BASE_IMAGE_i686-w64-mingw32 = $(BUILD_BASE_IMAGE_i686)
 BUILD_BASE_IMAGE_x86_64-linux-gnu = $(BUILD_BASE_IMAGE_x86_64)
 BUILD_BASE_IMAGE_x86_64-w64-mingw32 = $(BUILD_BASE_IMAGE_x86_64)
 
-%.Dockerfile: %.Dockerfile.in
+%.Dockerfile: %.Dockerfile.in Makefile
 	sed -re 's!@IMAGES_URLBASE@!$(IMAGES_URLBASE)!g' \
 	    -re 's!@BASE_IMAGE@!$(BASE_IMAGE)!g' \
 	    -re 's!@BINUTILS_VERSION@!$(BINUTILS_VERSION)!g' \
@@ -53,7 +53,7 @@ BUILD_BASE_IMAGE_x86_64-w64-mingw32 = $(BUILD_BASE_IMAGE_x86_64)
 	    -re 's!@LLVM_VERSION@!$(LLVM_VERSION)!g' \
 	    $< >$@
 
-%-i686.Dockerfile.in: %.Dockerfile.in
+%-i686.Dockerfile.in: %.Dockerfile.in Makefile
 	sed -re 's!@ARCH@!i686!g' \
 	    -re 's!@ARCH_BASE@!i386!g' \
 	    -re 's!@ARCH_TINI@!i386!g' \
@@ -61,7 +61,7 @@ BUILD_BASE_IMAGE_x86_64-w64-mingw32 = $(BUILD_BASE_IMAGE_x86_64)
 	    -re 's!@SIZEOF_VOIDP@!4!g' \
 	    $< >$@
 
-%-x86_64.Dockerfile.in: %.Dockerfile.in
+%-x86_64.Dockerfile.in: %.Dockerfile.in Makefile
 	sed -re 's!@ARCH@!x86_64!g' \
 	    -re 's!@ARCH_BASE@!x86_64!g' \
 	    -re 's!@ARCH_TINI@!amd64!g' \
@@ -69,13 +69,13 @@ BUILD_BASE_IMAGE_x86_64-w64-mingw32 = $(BUILD_BASE_IMAGE_x86_64)
 	    -re 's!@SIZEOF_VOIDP@!8!g' \
 	    $< >$@
 
-%-linux-gnu.Dockerfile.in: %.Dockerfile.in
+%-linux-gnu.Dockerfile.in: %.Dockerfile.in Makefile
 	sed -re 's!@TARGET@!linux-gnu!g' \
 	    -re 's!@TARGET_SYSTEM@!Linux!g' \
 	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
 	    $< >$@
 
-%-w64-mingw32.Dockerfile.in: %.Dockerfile.in
+%-w64-mingw32.Dockerfile.in: %.Dockerfile.in Makefile
 	sed -re 's!@TARGET@!w64-mingw32!g' \
 	    -re 's!@TARGET_SYSTEM@!Windows!g' \
 	    -re 's!@TARGET_FLAGS@!$(TARGET_FLAGS)!g' \
