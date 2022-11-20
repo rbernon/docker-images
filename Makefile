@@ -222,7 +222,7 @@ $(eval $(call create-mingw-rules,x86_64,headers-llvm))
 $(eval $(call create-mingw-rules,i686,crt-llvm))
 $(eval $(call create-mingw-rules,x86_64,crt-llvm))
 
-GCC_TARGET_FLAGS_w64-mingw32 = --disable-shared
+GCC_TARGET_FLAGS_w64-mingw32 = --disable-shared --disable-libatomic
 GCC_TARGET_FLAGS_linux-gnu =
 
 define create-gcc-rules
