@@ -7,6 +7,10 @@ RUN apt-get update \
   ccache \
   curl \
   flex \
+  fonts-liberation2 \
+  fonts-noto-cjk \
+  fonts-noto-core \
+  fvwm \
   gettext \
   git \
   libasound2-dev \
@@ -25,7 +29,7 @@ RUN apt-get update \
   libgsm1-dev \
   libgsm1-dev \
   libgstreamer-plugins-base1.0-dev \
-  libisl22 \
+  libisl-dev \
   libjpeg-dev \
   libjxr-dev \
   libkrb5-dev \
@@ -105,9 +109,15 @@ RUN apt-get update \
   opencl-dev \
   oss4-dev \
   pkg-config \
+  pulseaudio \
   tini \
   unzip \
   valgrind \
+  winbind \
+  xfonts-base \
+  xinit \
+  xserver-xorg \
+  xserver-xorg-video-dummy \
   yasm \
   zip \
 && apt-get remove gcc binutils -y \
