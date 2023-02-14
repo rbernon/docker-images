@@ -29,6 +29,7 @@ RUN apt-get update \
   libgsm1-dev \
   libgsm1-dev \
   libgstreamer-plugins-base1.0-dev \
+  libibus-1.0-dev \
   libisl-dev \
   libjpeg-dev \
   libjxr-dev \
