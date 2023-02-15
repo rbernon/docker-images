@@ -13,6 +13,10 @@ RUN apt-get update \
   fvwm \
   gettext \
   git \
+  gstreamer1.0-libav \
+  gstreamer1.0-plugins-bad \
+  gstreamer1.0-plugins-good \
+  gstreamer1.0-plugins-ugly \
   libasound2-dev \
   libcairo2-dev \
   libcapi20-dev \
@@ -36,6 +40,7 @@ RUN apt-get update \
   libkrb5-dev \
   liblcms2-dev \
   libldap2-dev \
+  libmjpegtools-dev \
   libmpc3 \
   libmpfr6 \
   libmpg123-dev \
@@ -111,10 +116,13 @@ RUN apt-get update \
   oss4-dev \
   pkg-config \
   pulseaudio \
+  samba-dev \
   tini \
+  unixodbc-dev \
   unzip \
   valgrind \
   winbind \
+  x11-xserver-utils \
   xfonts-base \
   xinit \
   xserver-xorg \
