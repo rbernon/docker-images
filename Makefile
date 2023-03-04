@@ -287,67 +287,60 @@ $(eval $(call create-proton-rules,-base))
 $(eval $(call create-proton-rules,))
 $(eval $(call create-proton-rules,-llvm))
 
-WINE_BASE_IMAGE_base-i686 = docker.io/i386/debian:unstable
-WINE_BASE_IMAGE_base-x86_64 = docker.io/amd64/debian:unstable
-WINE_BASE_IMAGE_i686 = $(IMAGES_URLBASE)/wine-base-i686:$(IMAGES_VERSION)
-WINE_BASE_IMAGE_x86_64 = $(IMAGES_URLBASE)/wine-base-x86_64:$(IMAGES_VERSION)
-WINE_BASE_IMAGE_llvm-i686 = $(IMAGES_URLBASE)/wine-base-i686:$(IMAGES_VERSION)
-WINE_BASE_IMAGE_llvm-x86_64 = $(IMAGES_URLBASE)/wine-base-x86_64:$(IMAGES_VERSION)
+WINE_BASE_IMAGE-base = docker.io/amd64/debian:unstable
+WINE_BASE_IMAGE = $(IMAGES_URLBASE)/wine-base:$(IMAGES_VERSION)
+WINE_BASE_IMAGE-llvm = $(IMAGES_URLBASE)/wine-base:$(IMAGES_VERSION)
 
 define create-wine-rules
-.PHONY: wine-$(1)
-all wine: wine-$(1)
-wine-$(1): BASE_IMAGE = $(WINE_BASE_IMAGE_$(1))
-wine-$(1): wine-$(1).Dockerfile
+.PHONY: wine$(1)
+all: wine$(1)
+wine$(1): BASE_IMAGE = $(WINE_BASE_IMAGE$(1))
+wine$(1): wine$(1).Dockerfile
 	rm -rf build; mkdir -p build
-	-$(DOCKER) pull $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION)
+	-$(DOCKER) pull $(IMAGES_URLBASE)/wine$(1):$(IMAGES_VERSION)
 	$(DOCKER) build -f $$< \
-	  --cache-from=$(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION) \
-	  -t $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION) \
-	  -t $(IMAGES_URLBASE)/wine-$(1):latest \
+	  --cache-from=$(IMAGES_URLBASE)/wine$(1):$(IMAGES_VERSION) \
+	  -t $(IMAGES_URLBASE)/wine$(1):$(IMAGES_VERSION) \
+	  -t $(IMAGES_URLBASE)/wine$(1):latest \
 	  build
-push-wine-$(1)::
-	-$(DOCKER) push $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION)
-	-$(DOCKER) push $(IMAGES_URLBASE)/wine-$(1):latest
-push-wine:: push-wine-$(1)
+push-wine$(1)::
+	-$(DOCKER) push $(IMAGES_URLBASE)/wine$(1):$(IMAGES_VERSION)
+	-$(DOCKER) push $(IMAGES_URLBASE)/wine$(1):latest
+push-wine:: push-wine$(1)
 push:: push-wine
-clean-wine-$(1)::
-	-$(DOCKER) image rm $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION)
-	-$(DOCKER) image rm $(IMAGES_URLBASE)/wine-$(1):latest
-clean-wine:: clean-wine-$(1)
+clean-wine$(1)::
+	-$(DOCKER) image rm $(IMAGES_URLBASE)/wine$(1):$(IMAGES_VERSION)
+	-$(DOCKER) image rm $(IMAGES_URLBASE)/wine$(1):latest
+clean-wine:: clean-wine$(1)
 clean:: clean-wine
 endef
 
-$(eval $(call create-wine-rules,base-i686))
-$(eval $(call create-wine-rules,base-x86_64))
-$(eval $(call create-wine-rules,i686))
-$(eval $(call create-wine-rules,x86_64))
-$(eval $(call create-wine-rules,llvm-i686))
-$(eval $(call create-wine-rules,llvm-x86_64))
+$(eval $(call create-wine-rules,-base))
+$(eval $(call create-wine-rules,))
+$(eval $(call create-wine-rules,-llvm))
 
 define create-devel-rules
-.PHONY: devel-$(1)
-all devel: devel-$(1)
-devel-$(1): BASE_IMAGE = $(IMAGES_URLBASE)/wine-$(1):$(IMAGES_VERSION)
-devel-$(1): devel-$(1).Dockerfile
+.PHONY: devel
+all devel: devel
+devel: BASE_IMAGE = $(IMAGES_URLBASE)/wine:$(IMAGES_VERSION)
+devel: devel.Dockerfile
 	rm -rf build; mkdir -p build
-	-$(DOCKER) pull $(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION)
+	-$(DOCKER) pull $(IMAGES_URLBASE)/devel:$(IMAGES_VERSION)
 	$(DOCKER) build -f $$< \
-	  --cache-from=$(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION) \
-	  -t $(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION) \
-	  -t $(IMAGES_URLBASE)/devel-$(1):latest \
+	  --cache-from=$(IMAGES_URLBASE)/devel:$(IMAGES_VERSION) \
+	  -t $(IMAGES_URLBASE)/devel:$(IMAGES_VERSION) \
+	  -t $(IMAGES_URLBASE)/devel:latest \
 	  build
-push-devel-$(1)::
-	-$(DOCKER) push $(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION)
-	-$(DOCKER) push $(IMAGES_URLBASE)/devel-$(1):latest
-push-devel:: push-devel-$(1)
+push-devel::
+	-$(DOCKER) push $(IMAGES_URLBASE)/devel:$(IMAGES_VERSION)
+	-$(DOCKER) push $(IMAGES_URLBASE)/devel:latest
+push-devel:: push-devel
 push:: push-devel
-clean-devel-$(1)::
-	-$(DOCKER) image rm $(IMAGES_URLBASE)/devel-$(1):$(IMAGES_VERSION)
-	-$(DOCKER) image rm $(IMAGES_URLBASE)/devel-$(1):latest
-clean-devel:: clean-devel-$(1)
+clean-devel::
+	-$(DOCKER) image rm $(IMAGES_URLBASE)/devel:$(IMAGES_VERSION)
+	-$(DOCKER) image rm $(IMAGES_URLBASE)/devel:latest
+clean-devel:: clean-devel
 clean:: clean-devel
 endef
 
-$(eval $(call create-devel-rules,i686))
-$(eval $(call create-devel-rules,x86_64))
+$(eval $(call create-devel-rules))
