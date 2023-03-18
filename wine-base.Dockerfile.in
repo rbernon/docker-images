@@ -134,6 +134,7 @@ RUN dpkg --add-architecture i386 \
   libv4l-dev:amd64 libv4l-dev:i386 \
   libvkd3d-dev:amd64 libvkd3d-dev:i386 \
   libvulkan-dev:amd64 libvulkan-dev:i386 \
+  libwayland-dev:amd64 libwayland-dev:i386 \
   libx11-dev:amd64 libx11-dev:i386 \
   libx11-xcb-dev:amd64 libx11-xcb-dev:i386 \
   libxcb-composite0-dev:amd64 libxcb-composite0-dev:i386 \
