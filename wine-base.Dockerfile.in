@@ -38,6 +38,7 @@ RUN dpkg --add-architecture i386 \
   valgrind \
   winbind \
   x11-xserver-utils \
+  x11-utils \
   xfonts-base \
   xinit \
   xserver-xorg \
