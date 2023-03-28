@@ -344,3 +344,29 @@ clean:: clean-devel
 endef
 
 $(eval $(call create-devel-rules))
+
+define create-winehq-rules
+.PHONY: winehq
+all winehq: winehq
+winehq: BASE_IMAGE = docker.io/debian:bullseye-slim
+winehq: winehq.Dockerfile
+	rm -rf build; mkdir -p build
+	-$(DOCKER) pull $(IMAGES_URLBASE)/winehq:$(IMAGES_VERSION)
+	$(DOCKER) build -f $$< \
+	  --cache-from=$(IMAGES_URLBASE)/winehq:$(IMAGES_VERSION) \
+	  -t $(IMAGES_URLBASE)/winehq:$(IMAGES_VERSION) \
+	  -t $(IMAGES_URLBASE)/winehq:latest \
+	  build
+push-winehq::
+	-$(DOCKER) push $(IMAGES_URLBASE)/winehq:$(IMAGES_VERSION)
+	-$(DOCKER) push $(IMAGES_URLBASE)/winehq:latest
+push-winehq:: push-winehq
+push:: push-winehq
+clean-winehq::
+	-$(DOCKER) image rm $(IMAGES_URLBASE)/winehq:$(IMAGES_VERSION)
+	-$(DOCKER) image rm $(IMAGES_URLBASE)/winehq:latest
+clean-winehq:: clean-winehq
+clean:: clean-winehq
+endef
+
+$(eval $(call create-winehq-rules))
