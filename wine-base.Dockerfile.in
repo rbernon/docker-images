@@ -1,5 +1,11 @@
 FROM @BASE_IMAGE@ AS base
 RUN dpkg --add-architecture i386 \
+&& mkdir -p \
+  /usr/lib/debug \
+  /usr/share/doc/libuim-dev \
+  /usr/share/info \
+  /usr/share/man \
+  /usr/share/locale \
 && echo 'path-exclude=/usr/share/lib/debug' > /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
 && echo 'path-exclude=/usr/share/doc/*' > /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
 && echo 'path-exclude=/usr/share/info/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft \
@@ -36,6 +42,7 @@ RUN dpkg --add-architecture i386 \
   pkg-config \
   pulseaudio \
   tini \
+  uim \
   unzip \
   valgrind \
   winbind \
@@ -133,6 +140,7 @@ RUN dpkg --add-architecture i386 \
   libssl-dev:amd64 libssl-dev:i386 \
   libtiff-dev:amd64 libtiff-dev:i386 \
   libudev-dev:amd64 libudev-dev:i386 \
+  libuim-dev:amd64 libuim-dev:i386 \
   libusb-1.0-0-dev:amd64 libusb-1.0-0-dev:i386 \
   libv4l-dev:amd64 libv4l-dev:i386 \
   libvkd3d-dev:amd64 libvkd3d-dev:i386 \
