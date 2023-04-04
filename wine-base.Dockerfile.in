@@ -32,24 +32,38 @@ RUN dpkg --add-architecture i386 \
   fvwm \
   gettext \
   git \
+  i3 \
   ibus \
+  kwin-wayland \
   kwin-x11 \
   libmpc3 \
   libmpfr6 \
+  lwm \
   make \
+  marco \
+  metacity \
+  muffin \
   mutter \
+  mwm \
   openbox \
+  pekwm \
   pkg-config \
   pulseaudio \
+  spectrwm \
+  sway \
   tini \
   uim \
+  unagi \
   unzip \
   valgrind \
+  weston \
   winbind \
   x11-utils \
   x11-xserver-utils \
   xfonts-base \
+  xfwm4 \
   xinit \
+  xmonad \
   xserver-xorg \
   xserver-xorg-video-dummy \
   yasm \
