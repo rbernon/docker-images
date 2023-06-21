@@ -7,6 +7,9 @@ RUN wget --no-check-certificate -qO- https://github.com/llvm/llvm-project/archiv
     -DCMAKE_EXE_LINKER_FLAGS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive" \
     -DCMAKE_INSTALL_PREFIX="/usr" \
     -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive" \
+    -DCMAKE_SKIP_BUILD_RPATH=FALSE \
+    -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
+    -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE \
     -DLIBCLANG_BUILD_STATIC=ON \
     -DLLVM_BUILD_STATIC=ON \
     -DLLVM_ENABLE_LIBCXX=ON \

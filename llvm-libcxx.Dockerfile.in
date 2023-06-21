@@ -56,7 +56,7 @@ RUN wget --no-check-certificate -qO- https://github.com/llvm/llvm-project/archiv
    -DLIBCXX_INCLUDE_TESTS=OFF \
 && DESTDIR=/opt ninja -C build-libcxx install-unwind install-cxxabi install-cxx \
 && cmake -Bbuild-compiler-rt -Hruntimes -GNinja \
-   -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/@LLVM_VERSION@ \
+   -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/$(echo @LLVM_VERSION@ | cut -d '.' -f 1) \
    -DCMAKE_BUILD_TYPE=Release \
    -DCMAKE_SYSTEM_NAME=@TARGET_SYSTEM@ \
    -DCMAKE_C_COMPILER=@ARCH@-@TARGET@-gcc \

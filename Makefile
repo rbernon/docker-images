@@ -25,14 +25,14 @@ push:: push-steamrt
 # this is just for building toolchain, as we do static builds it should
 # not have any impact on the end result, but changing it will invalidate
 # docker caches, so we need something that don't change much
-BASE_IMAGE_i686 = docker.io/i386/debian:10
-BASE_IMAGE_x86_64 = docker.io/amd64/debian:10
+BASE_IMAGE_i686 = docker.io/i386/debian:12
+BASE_IMAGE_x86_64 = docker.io/amd64/debian:12
 
-BINUTILS_VERSION = 2.39
-GCC_VERSION = 12.2.0
-MINGW_VERSION = 10.0.0
-RUST_VERSION = 1.61.0
-LLVM_VERSION = 15.0.0
+BINUTILS_VERSION = 2.41
+GCC_VERSION = 13.2.0
+MINGW_VERSION = 11.0.1
+RUST_VERSION = 1.74.0
+LLVM_VERSION = 17.0.6
 
 IMAGES_VERSION = experimental
 

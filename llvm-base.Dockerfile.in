@@ -69,7 +69,7 @@ RUN mkdir -p /opt/usr/bin/ \
 RUN wget --no-check-certificate -qO- https://github.com/llvm/llvm-project/archive/llvmorg-@LLVM_VERSION@.tar.gz | tar xzf - -C /tmp \
 && cd /tmp/llvm-project-llvmorg-@LLVM_VERSION@ \
 && cmake -Bbuild -Hcompiler-rt/lib/builtins -GNinja \
-    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/@LLVM_VERSION@ \
+    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/$(echo @LLVM_VERSION@ | cut -d '.' -f 1) \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_SYSTEM_NAME=@TARGET_SYSTEM@ \
     -DCMAKE_C_COMPILER=@ARCH@-@TARGET@-gcc \
