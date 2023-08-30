@@ -287,7 +287,7 @@ $(eval $(call create-proton-rules,-base))
 $(eval $(call create-proton-rules,))
 $(eval $(call create-proton-rules,-llvm))
 
-WINE_BASE_IMAGE-base = docker.io/amd64/debian:unstable
+WINE_BASE_IMAGE-base = docker.io/amd64/debian:testing
 WINE_BASE_IMAGE = $(IMAGES_URLBASE)/wine-base:$(IMAGES_VERSION)
 WINE_BASE_IMAGE-llvm = $(IMAGES_URLBASE)/wine-base:$(IMAGES_VERSION)
 
