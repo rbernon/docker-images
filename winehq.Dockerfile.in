@@ -91,6 +91,8 @@ RUN apt-get update \
        libxi-dev:i386 \
        libxinerama-dev:amd64 \
        libxinerama-dev:i386 \
+       libxkbregistry-dev:amd64 \
+       libxkbregistry-dev:i386 \
        libxrandr-dev:amd64 \
        libxrandr-dev:i386 \
        libxrender-dev:amd64 \
