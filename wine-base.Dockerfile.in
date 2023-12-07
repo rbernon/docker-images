@@ -64,7 +64,6 @@ RUN dpkg --add-architecture i386 \
   xfonts-base \
   xfwm4 \
   xinit \
-  xmonad \
   xserver-xorg \
   xserver-xorg-video-dummy \
   yasm \
