@@ -18,8 +18,7 @@ RUN dpkg --add-architecture i386 \
 && useradd -m user1000 \
 && useradd -m user1001 \
 && apt-get update \
-&& apt-get install -y \
-  aptitude \
+&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
   autoconf \
   autoconf2.13 \
   bison \
@@ -70,8 +69,7 @@ RUN dpkg --add-architecture i386 \
   zip \
 && echo "allowed_users=anybody" >> /etc/X11/Xwrapper.config \
 && echo "needs_root_rights=no" >> /etc/X11/Xwrapper.config \
-&& aptitude update \
-&& aptitude install -y \
+&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
   gir1.2-gst-plugins-base-1.0:amd64 gir1.2-gst-plugins-base-1.0:i386 \
   gstreamer1.0-libav:amd64 gstreamer1.0-libav:i386 \
   gstreamer1.0-plugins-bad:amd64 gstreamer1.0-plugins-bad:i386 \
@@ -114,8 +112,8 @@ RUN dpkg --add-architecture i386 \
   libxrender1:amd64 libxrender1:i386 \
   libxxf86vm1:amd64 libxxf86vm1:i386 \
   samba:amd64 \
-  unixodbc:amd64 unixodbc:i386 \
-&& aptitude install -y \
+  unixodbc:amd64 \
+&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libasound2-dev:amd64 libasound2-dev:i386 \
   libcairo2-dev:amd64 libcairo2-dev:i386 \
   libcapi20-dev:amd64 libcapi20-dev:i386 \
@@ -221,7 +219,7 @@ RUN dpkg --add-architecture i386 \
   opencl-dev:amd64 opencl-dev:i386 \
   samba-dev:amd64 samba-dev:i386 \
   systemtap-sdt-dev:amd64 systemtap-sdt-dev:i386 \
-  unixodbc-dev:amd64 unixodbc-dev:i386 \
+  unixodbc-dev:amd64 \
 && apt-get autoremove -y \
 && apt-get clean \
 && apt-get download libgstreamer-plugins-base1.0-dev:i386 \
