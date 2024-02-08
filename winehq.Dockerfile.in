@@ -39,6 +39,8 @@ RUN apt-get update \
        libcups2-dev:i386 \
        libdbus-1-dev:amd64 \
        libdbus-1-dev:i386 \
+       libegl-dev:amd64 \
+       libegl-dev:i386 \
        libfontconfig-dev:amd64 \
        libfontconfig-dev:i386 \
        libfreetype-dev:amd64 \
